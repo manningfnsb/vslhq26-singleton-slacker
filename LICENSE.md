@@ -175,7 +175,7 @@
 
    END OF TERMS AND CONDITIONS
 
-   Copyright 2026 Clifford Manning https://github.com/manningfnsb
+   Copyright 2026 Clifford Manning  https://github.com/manningfnsb
 
    Licensed under the Apache License, Version 2.0 (the "License");
    you may not use this file except in compliance with the License.

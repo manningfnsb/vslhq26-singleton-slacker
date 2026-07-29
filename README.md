@@ -1,62 +1,67 @@
-# PolicyProof
-An AI compliance checker for proposals/contracts
+# PolicyProof - AI Compliance Checker
 
-- **singleton-slacker**
-- **Members:**
-  - Cliff Manning (@manningfnsb)
-  
-## Category
-
-- **Primary:** Azure OpenAI/LLM app
-
-## What it does
-
-Two to four sentences describing the problem you're solving and how your project addresses it.
+**One-line pitch:** Upload a requirements/policy document and a draft response; produce a Red/Yellow/Green compliance matrix with missing requirements, risk flags, suggested fixes, and citations to source text.
 
 ## Architecture
 
-Brief description of the components and how they connect. A diagram (image, mermaid, or ASCII) is welcome.
+`
+User uploads 2 files (Requirements + Draft Response)
+  |
+  v
+TextExtractorService (.txt / .docx / .pdf)
+  |
+  v
+PiiMaskerService (SSN, email, phone, CC, API keys)
+  |
+  v
+ComplianceAnalyzerService
+  |- Single-pass (< 80K tokens): one Azure OpenAI call
+  |- Two-pass chunked (>= 80K tokens):
+  |    Pass 1: Extract requirements list
+  |    Pass 2: Sliding-window chunks with overlap
+  |    Merge: Deduplicate, keep best status per requirement
+  |
+  v
+Compliance Matrix UI (summary + filterable table)
+`
 
-## Tech stack
+## Safety and Security
 
-- Languages:
-- Frameworks/libraries:
-- AI models/services:
-- Hosting:
+- **Prompt injection defense**: System prompt explicitly instructs the model to ignore instructions embedded in uploaded documents
+- **No citation, no claim**: Every compliance status requires a direct quote from the source document
+- **PII masking**: SSNs, emails, phone numbers, credit cards, and API keys/secrets are redacted before sending to Azure OpenAI
+- **Structured output**: JSON response format enforced via API parameter
 
-## Getting started
+## Quick Start
 
-### Prerequisites
+1. Configure Azure OpenAI credentials:
+`ash
+cd PolicyProof
+dotnet user-secrets set AzureOpenAI:Endpoint https://YOUR-RESOURCE.openai.azure.com/
+dotnet user-secrets set AzureOpenAI:ApiKey YOUR-KEY
+dotnet user-secrets set AzureOpenAI:DeploymentName gpt-4o
+`
 
-- List required SDKs, runtimes, accounts, if any API Keys are needed (but not the value of the key itself)
+2. Run: dotnet run
 
-### Setup
+3. Navigate to https://localhost:5001 and upload your documents.
 
-```bash
-# Clone the repo
-git clone https://github.com/<owner>/<repo>.git
-cd <repo>
+## Tech Stack
 
-# Install dependencies
-# Configure environment variables (see .env.example)
+- .NET 10 / ASP.NET Core MVC
+- Azure OpenAI (GPT-4o)
+- PdfPig (Apache 2.0) for PDF extraction
+- DocumentFormat.OpenXml for DOCX extraction
+- Bootstrap 5 + Bootstrap Icons
 
-# Run
-```
+## Demo Script (60-90 seconds)
 
-### Configuration
+2. **Upload** (10s): Upload a sample RFP and proposal response.
+4. **Results** (20s): Show the compliance matrix. Point out the overall score, Red items with suggested fixes, and evidence citations.
 
-List the environment variables or config files needed. Do NOT commit secrets. Use `.env.example` to show the shape.
-
-## Demo (required)
-
-- Video file in this repo (preferred): `./demo/demo.mp4` (or similar path)
-- Video link (YouTube, Loom, etc.) if not committed to repo:
-- Deployed URL (if any):
-
-## Known limitations
-
-Be honest about what doesn't work yet. Judges appreciate this.
-
-## License
-
-PolyForm Noncommercial License 1.0.0
+1. **The Problem** (10s): Compliance teams manually check proposals against RFP requirements. Hours of work, things get missed.
+2. **Upload** (10s): Upload a sample RFP and proposal response.
+3. **Processing** (20-30s): PolicyProof extracts text, masks PII, and sends both documents to Azure OpenAI with a strict compliance auditor prompt.
+4. **Results** (20s): Show the compliance matrix with overall score, Red items with suggested fixes, and evidence citations.
+5. **Filtering** (10s): Filter to show only Red/Yellow items - these are your action items.
+6. **Safety** (10s): We defend against prompt injection, require citations for every claim, and mask PII before it reaches the model.

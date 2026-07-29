@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Upload Documents";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-shield-check"></i> PolicyProof - Compliance Analyzer</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Upload your requirements/policy document and draft response to generate a compliance matrix.</p>
+                    <form asp-controller="Analysis" asp-action="Analyze" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Requirements / Policy Document</label>
+                            <input type="file" name="RequirementsFile" class="form-control" accept=".txt,.pdf,.docx,.md" required />
+                            <div class="form-text">The source of truth - RFP, policy doc, or requirements spec.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Draft Response / Proposal</label>
+                            <input type="file" name="ResponseFile" class="form-control" accept=".txt,.pdf,.docx,.md" required />
+                            <div class="form-text">Your draft that will be checked against requirements.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-lg w-100" id="analyzeBtn">
+                            <i class="bi bi-lightning-charge"></i> Analyze Compliance
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="text-center mt-3 text-muted">
+                <small>Supported formats: .txt, .docx, .pdf | PII is masked before analysis</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('uploadForm').addEventListener('submit', function() {
+    var btn = document.getElementById('analyzeBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Analyzing... (this may take 30-60 seconds)';
+});
+</script>

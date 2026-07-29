@@ -1,0 +1,74 @@
+@model PolicyProof.Models.AnalysisViewModel
+@{
+    ViewData["Title"] = "Compliance Results";
+}
+
+<div class="container-fluid mt-4">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> @Model.ErrorMessage</div>
+        <a asp-controller="Analysis" asp-action="Upload" class="btn btn-outline-primary">Try Again</a>
+    }
+    else
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card text-center border-0 shadow-sm">
+                    <div class="card-body">
+                        <h1 class="display-4 fw-bold" style="color: @(Model.Result.Summary.OverallScore >= 70 ? "green" : Model.Result.Summary.OverallScore >= 40 ? "orange" : "red")">@Model.Result.Summary.OverallScore%</h1>
+                        <p class="text-muted">Overall Score</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3"><div class="card text-center border-success shadow-sm"><div class="card-body"><h2 class="text-success">@Model.Result.Summary.GreenCount</h2><p>Compliant</p></div></div></div>
+            <div class="col-md-3"><div class="card text-center border-warning shadow-sm"><div class="card-body"><h2 class="text-warning">@Model.Result.Summary.YellowCount</h2><p>Partial</p></div></div></div>
+            <div class="col-md-3"><div class="card text-center border-danger shadow-sm"><div class="card-body"><h2 class="text-danger">@Model.Result.Summary.RedCount</h2><p>Non-Compliant</p></div></div></div>
+        </div>
+
+        <div class="mb-3">
+            <small class="text-muted">Files: @Model.RequirementsFileName vs @Model.ResponseFileName | Duration: @Model.AnalysisDuration.TotalSeconds.ToString("F1")s</small>
+            <div class="btn-group ms-3" role="group">
+                <button class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">All</button>
+                <button class="btn btn-sm btn-outline-danger filter-btn" data-filter="Red">Red</button>
+                <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="Yellow">Yellow</button>
+                <button class="btn btn-sm btn-outline-success filter-btn" data-filter="Green">Green</button>
+            </div>
+            <a asp-controller="Analysis" asp-action="Upload" class="btn btn-sm btn-outline-primary ms-2">New Analysis</a>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover" id="complianceTable">
+                <thead class="table-dark">
+                    <tr><th>ID</th><th>Requirement</th><th>Status</th><th>Evidence</th><th>Gap</th><th>Suggested Fix</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Result.Requirements)
+                {
+                    var rowClass = item.Status switch { "Green" => "table-success", "Yellow" => "table-warning", "Red" => "table-danger", _ => "" };
+                    <tr class="@rowClass compliance-row" data-status="@item.Status">
+                        <td><strong>@item.RequirementId</strong></td>
+                        <td>@item.Requirement</td>
+                        <td><span class="badge bg-@(item.Status == "Green" ? "success" : item.Status == "Yellow" ? "warning" : "danger")">@item.Status</span></td>
+                        <td><em>"@item.EvidenceQuote"</em><br/><small class="text-muted">@item.Citation</small></td>
+                        <td>@item.GapDescription</td>
+                        <td>@item.SuggestedFix</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<script>
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        var filter = this.dataset.filter;
+        document.querySelectorAll('.compliance-row').forEach(row => {
+            row.style.display = (filter === 'all' || row.dataset.status === filter) ? '' : 'none';
+        });
+    });
+});
+</script>

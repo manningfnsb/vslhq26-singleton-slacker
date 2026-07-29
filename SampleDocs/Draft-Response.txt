@@ -1,0 +1,35 @@
+PROPOSAL: Cloud-Based Employee Management System
+Submitted by: NorthTech Solutions, LLC
+Date: February 20, 2025
+In response to: RFP FNSB-2025-IT-042
+
+1. EXECUTIVE SUMMARY
+NorthTech Solutions is pleased to submit this proposal for the Employee Management System. Our platform, WorkforceOne, has served over 200 government clients nationwide.
+
+2. TECHNICAL APPROACH
+WorkforceOne supports SSO integration with Microsoft Entra ID, Okta, and other SAML 2.0 providers. Our RBAC module includes 8 pre-configured roles with full customization capabilities.
+
+All data is encrypted in transit using TLS 1.3. Data at rest is encrypted using AES-256 across all storage layers including database, file storage, and backups.
+
+Our platform runs on Microsoft Azure with geo-redundant deployments. We guarantee 99.95% uptime backed by SLA credits. Our API layer provides RESTful endpoints documented via OpenAPI 3.0 specification for seamless integration with payroll and HRIS systems.
+
+3. DISASTER RECOVERY
+We provide automated daily backups with point-in-time recovery. Our disaster recovery plan targets an RPO of 1 hour and RTO of 4 hours, exceeding industry standards.
+
+4. FUNCTIONAL CAPABILITIES
+WorkforceOne includes a comprehensive onboarding module with configurable multi-step approval workflows. Hiring managers can customize onboarding checklists per department.
+
+Our time and attendance module supports mobile clock-in with GPS verification. Note: Geofencing is on our product roadmap for Q3 2025 and is not currently available.
+
+The self-service employee portal allows staff to view pay stubs, update contact information, and submit leave requests with manager approval workflows.
+
+5. SUPPORT AND TRAINING
+NorthTech provides business-hours support (Monday-Friday, 8AM-6PM AKST) with 4-hour response time for critical issues. Premium 24/7 support is available as an add-on package.
+
+We offer virtual training sessions for administrators. On-site training can be arranged at additional cost for groups up to 25 participants per session.
+
+6. COMPLIANCE AND SECURITY
+WorkforceOne is SOC 2 Type II certified and complies with HIPAA requirements. We are currently pursuing FedRAMP authorization and expect to achieve Moderate certification by Q4 2025.
+
+7. CONTRACT TERMS
+We propose a 3-year base contract with options for annual renewal thereafter. Pricing is detailed in Attachment B.

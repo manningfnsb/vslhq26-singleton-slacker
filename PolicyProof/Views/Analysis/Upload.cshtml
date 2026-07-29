@@ -97,6 +97,22 @@ document.querySelectorAll('.drop-zone').forEach(function(zone) {
 document.getElementById('uploadForm').addEventListener('submit', function() {
     var btn = document.getElementById('analyzeBtn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing\u2026 this may take 30\u201360 seconds';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span><span id="tipText">Analyzing\u2026</span>';
+
+    var tips = [
+        "Extracting text from your documents\u2026",
+        "Masking PII before sending to the model\u2026",
+        "Identifying individual requirements\u2026",
+        "Evaluating compliance for each requirement\u2026",
+        "Scoring confidence levels\u2026",
+        "Generating suggested fixes for gaps\u2026",
+        "Building your compliance matrix\u2026",
+        "Almost there \u2014 finalizing results\u2026"
+    ];
+    var i = 0;
+    setInterval(function() {
+        i = (i + 1) % tips.length;
+        document.getElementById('tipText').textContent = tips[i];
+    }, 4000);
 });
 </script>

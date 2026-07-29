@@ -4,5 +4,6 @@ namespace PolicyProof.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index() => RedirectToAction("Upload", "Analysis");
+    public IActionResult Index() => View();
+    public IActionResult Privacy() => View();
 }

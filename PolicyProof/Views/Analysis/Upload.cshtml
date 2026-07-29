@@ -2,43 +2,101 @@
     ViewData["Title"] = "Upload Documents";
 }
 
+<style>
+.upload-card { border: none; border-radius: 12px; }
+.upload-header { background: #dbeafe; color: #1e3a5f; border-radius: 12px 12px 0 0; padding: 1.5rem; border-bottom: 1px solid #bfdbfe; }
+.upload-header h4 { font-weight: 600; margin: 0; }
+.upload-body { padding: 2rem; }
+.file-input-group label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: #6c757d; }
+.file-input-group .form-text { font-size: 0.8rem; }
+.drop-zone { border: 2px dashed #bfdbfe; border-radius: 8px; padding: 1.5rem; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; background: #f8fafc; }
+.drop-zone:hover, .drop-zone.drag-over { border-color: #60a5fa; background: #eff6ff; }
+.drop-zone .drop-icon { font-size: 1.5rem; color: #93c5fd; }
+.drop-zone .drop-text { font-size: 0.85rem; color: #64748b; margin-top: 0.25rem; }
+.drop-zone .file-name { font-size: 0.85rem; color: #1e3a5f; font-weight: 600; margin-top: 0.25rem; }
+.btn-analyze { border-radius: 8px; font-weight: 600; letter-spacing: 0.3px; padding: 0.75rem; background: #dbeafe; color: #1e3a5f; border: 1px solid #bfdbfe; transition: background 0.15s, transform 0.1s; }
+.btn-analyze:hover { background: #bfdbfe; color: #1e3a5f; transform: translateY(-1px); }
+.btn-analyze:active { transform: translateY(0); }
+.supported-formats { font-size: 0.8rem; letter-spacing: 0.3px; }
+</style>
+
 <div class="container mt-4">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0"><i class="bi bi-shield-check"></i> PolicyProof - Compliance Analyzer</h3>
+        <div class="col-md-7">
+            <div class="card upload-card shadow-sm">
+                <div class="upload-header">
+                    <h4><i class="bi bi-shield-check me-2"></i>PolicyProof</h4>
+                    <small class="opacity-75">Upload documents to generate a compliance matrix</small>
                 </div>
-                <div class="card-body">
-                    <p class="text-muted">Upload your requirements/policy document and draft response to generate a compliance matrix.</p>
+                <div class="upload-body">
                     <form asp-controller="Analysis" asp-action="Analyze" method="post" enctype="multipart/form-data" id="uploadForm">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Requirements / Policy Document</label>
-                            <input type="file" name="RequirementsFile" class="form-control" accept=".txt,.pdf,.docx,.md" required />
-                            <div class="form-text">The source of truth - RFP, policy doc, or requirements spec.</div>
+                        <div class="file-input-group mb-4">
+                            <label class="form-label">Requirements / Policy Document</label>
+                            <div class="drop-zone" id="dropZone1">
+                                <input type="file" name="RequirementsFile" class="d-none" accept=".txt,.pdf,.docx,.md" required />
+                                <div class="drop-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                                <div class="drop-text">Drag & drop or <span class="text-primary">browse</span></div>
+                                <div class="file-name d-none"></div>
+                            </div>
+                            <div class="form-text">The source of truth — RFP, policy doc, or requirements spec.</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Draft Response / Proposal</label>
-                            <input type="file" name="ResponseFile" class="form-control" accept=".txt,.pdf,.docx,.md" required />
+                        <div class="file-input-group mb-4">
+                            <label class="form-label">Draft Response / Proposal</label>
+                            <div class="drop-zone" id="dropZone2">
+                                <input type="file" name="ResponseFile" class="d-none" accept=".txt,.pdf,.docx,.md" required />
+                                <div class="drop-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                                <div class="drop-text">Drag & drop or <span class="text-primary">browse</span></div>
+                                <div class="file-name d-none"></div>
+                            </div>
                             <div class="form-text">Your draft that will be checked against requirements.</div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg w-100" id="analyzeBtn">
-                            <i class="bi bi-lightning-charge"></i> Analyze Compliance
+                        <button type="submit" class="btn btn-primary btn-lg w-100 btn-analyze" id="analyzeBtn">
+                            <i class="bi bi-lightning-charge me-1"></i>Analyze Compliance
                         </button>
                     </form>
                 </div>
             </div>
-            <div class="text-center mt-3 text-muted">
-                <small>Supported formats: .txt, .docx, .pdf | PII is masked before analysis</small>
+            <div class="text-center mt-3 supported-formats text-muted">
+                Supported formats: .txt, .docx, .pdf &middot; PII is masked before analysis
             </div>
         </div>
     </div>
 </div>
 
 <script>
+document.querySelectorAll('.drop-zone').forEach(function(zone) {
+    var input = zone.querySelector('input[type="file"]');
+    var textEl = zone.querySelector('.drop-text');
+    var nameEl = zone.querySelector('.file-name');
+
+    zone.addEventListener('click', function() { input.click(); });
+
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            showName(e.dataTransfer.files[0].name);
+        }
+    });
+
+    input.addEventListener('change', function() {
+        if (input.files.length) showName(input.files[0].name);
+    });
+
+    function showName(name) {
+        textEl.classList.add('d-none');
+        nameEl.textContent = name;
+        nameEl.classList.remove('d-none');
+        zone.querySelector('.drop-icon').innerHTML = '<i class="bi bi-file-earmark-check"></i>';
+    }
+});
+
 document.getElementById('uploadForm').addEventListener('submit', function() {
     var btn = document.getElementById('analyzeBtn');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Analyzing... (this may take 30-60 seconds)';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Analyzing\u2026 this may take 30\u201360 seconds';
 });
 </script>

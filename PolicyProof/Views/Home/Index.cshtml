@@ -1,8 +1,49 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "PolicyProof";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<style>
+.hero { padding: 4rem 0 3rem; }
+.hero h1 { font-weight: 700; font-size: 2.75rem; letter-spacing: -1px; color: #1e293b; }
+.hero .lead { font-size: 1.15rem; color: #64748b; max-width: 600px; }
+.step-card { border: none; border-radius: 10px; padding: 1.5rem; text-align: center; height: 100%; }
+.step-card .step-num { width: 32px; height: 32px; border-radius: 50%; background: #dbeafe; color: #1e3a5f; font-weight: 700; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.75rem; }
+.step-card h6 { font-weight: 600; color: #1e293b; }
+.step-card p { font-size: 0.85rem; color: #64748b; margin: 0; }
+.cta-btn { background: #dbeafe; color: #1e3a5f; border: 1px solid #bfdbfe; border-radius: 8px; font-weight: 600; padding: 0.75rem 2rem; transition: background 0.15s, transform 0.1s; }
+.cta-btn:hover { background: #bfdbfe; color: #1e3a5f; transform: translateY(-1px); }
+</style>
+
+<div class="container">
+    <div class="hero text-center">
+        <h1>Compliance analysis,<br/>in seconds.</h1>
+        <p class="lead mx-auto mt-3">Upload your policy requirements and draft response — PolicyProof uses AI to generate a detailed compliance matrix showing exactly where you stand.</p>
+        <a asp-controller="Analysis" asp-action="Upload" class="btn btn-lg cta-btn mt-4">
+            <i class="bi bi-lightning-charge me-1"></i>Start Analysis
+        </a>
+    </div>
+
+    <div class="row g-3 mt-2 mb-5 justify-content-center">
+        <div class="col-md-4">
+            <div class="step-card shadow-sm">
+                <div class="step-num">1</div>
+                <h6>Upload Documents</h6>
+                <p>Drop in your requirements doc and draft response. Supports .txt, .docx, and .pdf.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="step-card shadow-sm">
+                <div class="step-num">2</div>
+                <h6>AI Analyzes</h6>
+                <p>Each requirement is evaluated against your response with evidence and confidence scores.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="step-card shadow-sm">
+                <div class="step-num">3</div>
+                <h6>Get Your Report</h6>
+                <p>Visual compliance matrix with gaps, suggested fixes, and CSV export.</p>
+            </div>
+        </div>
+    </div>
 </div>

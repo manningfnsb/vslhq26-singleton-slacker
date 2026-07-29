@@ -1,6 +1,31 @@
 ﻿@{
-    ViewData["Title"] = "Privacy Policy";
+    ViewData["Title"] = "Privacy";
 }
-<h1>@ViewData["Title"]</h1>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<style>
+.privacy-content { max-width: 720px; }
+.privacy-content h5 { font-weight: 600; color: #1e293b; margin-top: 1.5rem; }
+.privacy-content p, .privacy-content li { font-size: 0.9rem; color: #64748b; line-height: 1.7; }
+</style>
+
+<div class="container mt-4 mb-5">
+    <div class="privacy-content mx-auto">
+        <h3 class="fw-bold mb-1">Privacy Policy</h3>
+        <p class="text-muted"><small>Last updated: @DateTime.UtcNow.ToString("MMMM yyyy")</small></p>
+
+        <h5>What We Process</h5>
+        <p>PolicyProof analyzes documents you upload to generate compliance reports. Documents are processed in-memory and are not stored after your session ends.</p>
+
+        <h5>PII Protection</h5>
+        <p>Before analysis, all uploaded content is passed through our PII masking service which redacts personally identifiable information (names, emails, phone numbers, etc.) so that sensitive data is never sent to the AI model.</p>
+
+        <h5>Data Retention</h5>
+        <p>We do not retain your uploaded documents or analysis results. Once your browser session ends, all data is discarded.</p>
+
+        <h5>Third-Party Services</h5>
+        <p>Document analysis is powered by Azure OpenAI. Masked content (with PII removed) is sent to the model for evaluation. No raw documents are shared with third parties.</p>
+
+        <h5>Contact</h5>
+        <p>Questions about this policy? Reach out to the project maintainers via the repository.</p>
+    </div>
+</div>

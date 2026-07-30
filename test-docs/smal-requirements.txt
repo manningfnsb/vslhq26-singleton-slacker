@@ -1,0 +1,30 @@
+REQUEST FOR PROPOSAL: Cloud-Based Employee Management System
+Organization: Fairbanks North Star Borough
+RFP Number: FNSB-2025-IT-042
+Issue Date: January 15, 2025
+Due Date: March 1, 2025
+
+1. INTRODUCTION
+The Fairbanks North Star Borough seeks proposals for a cloud-based Employee Management System (EMS).
+The system must support approximately 1,200 employees across 15 departments.
+
+2. TECHNICAL REQUIREMENTS
+REQ-001: The system shall provide single sign-on (SSO) integration with Microsoft Entra ID.
+REQ-002: The system shall support role-based access control (RBAC) with a minimum of 5 configurable roles.
+REQ-003: All data must be encrypted at rest using AES-256 and in transit using TLS 1.2 or higher.
+REQ-004: The system shall maintain 99.9% uptime measured monthly.
+REQ-005: The system must provide a RESTful API for integration with existing payroll systems.
+REQ-006: The vendor shall provide disaster recovery with RPO of 4 hours and RTO of 8 hours.
+
+3. FUNCTIONAL REQUIREMENTS
+REQ-007: The system shall include employee onboarding workflows with configurable approval chains.
+REQ-008: The system must support time and attendance tracking with geofencing capabilities.
+REQ-009: The system shall generate automated compliance reports for federal and state labor regulations.
+REQ-010: The system must provide a self-service portal for employees to update personal information, view pay stubs, and request leave.
+
+4. VENDOR REQUIREMENTS
+REQ-011: The vendor must provide 24/7 technical support with a guaranteed response time of 2 hours for critical issues.
+REQ-012: The vendor must provide on-site training for up to 50 system administrators.
+REQ-013: The vendor shall provide a data migration plan for transitioning from the legacy PeopleSoft system.
+REQ-014: The vendor must comply with FedRAMP Moderate or equivalent security certification.
+REQ-015: The contract term shall be 3 years with two optional 1-year extensions.

@@ -1,0 +1,232 @@
+@{
+    ViewData["Title"] = "Upload Documents";
+}
+
+<style>
+.upload-card { border: none; border-radius: 12px; }
+.upload-header { background: #dbeafe; color: #1e3a5f; border-radius: 12px 12px 0 0; padding: 1.5rem; border-bottom: 1px solid #bfdbfe; }
+.upload-header h4 { font-weight: 600; margin: 0; }
+.upload-body { padding: 2rem; }
+.file-input-group label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: #6c757d; }
+.file-input-group .form-text { font-size: 0.8rem; }
+.drop-zone { border: 2px dashed #bfdbfe; border-radius: 8px; padding: 1.5rem; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; background: #f8fafc; }
+.drop-zone:hover, .drop-zone.drag-over { border-color: #60a5fa; background: #eff6ff; }
+.drop-zone .drop-icon { font-size: 1.5rem; color: #93c5fd; }
+.drop-zone .drop-text { font-size: 0.85rem; color: #64748b; margin-top: 0.25rem; }
+.drop-zone .file-name { font-size: 0.85rem; color: #1e3a5f; font-weight: 600; margin-top: 0.25rem; }
+.btn-analyze { border-radius: 8px; font-weight: 600; letter-spacing: 0.3px; padding: 0.75rem; background: #dbeafe; color: #1e3a5f; border: 1px solid #bfdbfe; transition: background 0.15s, transform 0.1s; }
+.btn-analyze:hover { background: #bfdbfe; color: #1e3a5f; transform: translateY(-1px); }
+.btn-analyze:active { transform: translateY(0); }
+.btn-analyze:disabled { color: #1e3a5f; }
+.btn-analyze:disabled .spinner-border { color: #1e3a5f; }
+.supported-formats { font-size: 0.8rem; letter-spacing: 0.3px; }
+.pulse-highlight { box-shadow: 0 0 0 6px rgba(96,165,250,0.4); background: #bfdbfe !important; transition: box-shadow 0.3s, background 0.3s; }
+.progress-pulse { width: 10px; height: 10px; border-radius: 50%; background: #60a5fa; display: inline-block; }
+</style>
+<style>
+@@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+.progress-pulse { animation: pulse-dot 1.2s ease-in-out infinite; }
+</style>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card upload-card shadow-sm">
+                <div class="upload-header">
+                    <h4><i class="bi bi-shield-check me-2"></i>PolicyProof</h4>
+                    <small class="opacity-75">Upload documents to generate a compliance matrix</small>
+                </div>
+                <div class="upload-body">
+                    <form asp-controller="Analysis" asp-action="Analyze" method="post" enctype="multipart/form-data" id="uploadForm">
+                        <div class="file-input-group mb-4">
+                            <label class="form-label">Requirements / Policy Document</label>
+                            <div class="drop-zone" id="dropZone1">
+                                <input type="file" name="RequirementsFile" class="d-none" accept=".txt,.pdf,.docx,.md" required />
+                                <div class="drop-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                                <div class="drop-text">Drag & drop or <span class="text-primary">browse</span></div>
+                                <div class="file-name d-none"></div>
+                            </div>
+                            <div class="form-text">The source of truth — RFP, policy doc, or requirements spec.</div>
+                        </div>
+                        <div class="file-input-group mb-4">
+                            <label class="form-label">Draft Response / Proposal</label>
+                            <div class="drop-zone" id="dropZone2">
+                                <input type="file" name="ResponseFile" class="d-none" accept=".txt,.pdf,.docx,.md" required />
+                                <div class="drop-icon"><i class="bi bi-cloud-arrow-up"></i></div>
+                                <div class="drop-text">Drag & drop or <span class="text-primary">browse</span></div>
+                                <div class="file-name d-none"></div>
+                            </div>
+                            <div class="form-text">Your draft that will be checked against requirements.</div>
+                        </div>
+                        <button type="submit" class="btn btn-lg w-100 btn-analyze" id="analyzeBtn">
+                            <i class="bi bi-lightning-charge me-1"></i>Analyze Compliance
+                        </button>
+                    </form>
+                </div>
+            </div>
+            <div class="text-center mt-3 supported-formats text-muted">
+                Supported formats: .txt, .docx, .pdf &middot; PII is masked before analysis
+            </div>
+            <div class="text-center mt-4 p-3 sample-callout" style="background: #f0f9ff; border: 1px dashed #93c5fd; border-radius: 10px;">
+                <small class="d-block text-muted mb-2">No documents handy? See it in action first.</small>
+                <button type="button" class="btn btn-analyze" id="sampleBtn" style="padding: 0.5rem 1.5rem;">
+                    <i class="bi bi-play-circle me-1"></i>Try with sample documents
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.drop-zone').forEach(function(zone) {
+    var input = zone.querySelector('input[type="file"]');
+    var textEl = zone.querySelector('.drop-text');
+    var nameEl = zone.querySelector('.file-name');
+
+    zone.addEventListener('click', function() { input.click(); });
+
+    zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
+    zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });
+    zone.addEventListener('drop', function(e) {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        if (e.dataTransfer.files.length) {
+            input.files = e.dataTransfer.files;
+            showName(e.dataTransfer.files[0].name);
+        }
+    });
+
+    input.addEventListener('change', function() {
+        if (input.files.length) showName(input.files[0].name);
+    });
+
+    function showName(name) {
+        textEl.classList.add('d-none');
+        nameEl.textContent = name;
+        nameEl.classList.remove('d-none');
+        zone.querySelector('.drop-icon').innerHTML = '<i class="bi bi-file-earmark-check"></i>';
+    }
+});
+
+document.getElementById('uploadForm').addEventListener('submit', function() {
+    var btn = document.getElementById('analyzeBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span><span id="tipText">Analyzing\u2026</span>';
+
+    // Show progress indicator
+    var progressHtml = '<div id="analysisProgress" class="mt-4">' +
+        '<div class="progress mb-2" style="height:6px; border-radius:4px;">' +
+        '<div class="progress-bar" id="progressBar" style="width:0%; background:#60a5fa; transition: width 0.8s ease;"></div></div>' +
+        '<div class="d-flex justify-content-between" style="font-size:0.75rem; color:#6c757d;">' +
+        '<span><span class="progress-pulse me-1"></span><span id="stepLabel">Starting\u2026</span></span>' +
+        '<span><span id="elapsed">0s</span> \u00b7 <span id="stepPct">0%</span></span></div></div>';
+    btn.insertAdjacentHTML('afterend', progressHtml);
+
+    var startTime = Date.now();
+    var elapsedEl;
+    var elapsedTimer = setInterval(function() {
+        elapsedEl = document.getElementById('elapsed');
+        if (elapsedEl) {
+            var secs = Math.floor((Date.now() - startTime) / 1000);
+            elapsedEl.textContent = secs < 60 ? secs + 's' : Math.floor(secs/60) + 'm ' + (secs%60) + 's';
+        }
+    }, 1000);
+
+    var steps = [
+        { label: "Extracting text from documents\u2026", pct: 15 },
+        { label: "Masking PII before sending to AI\u2026", pct: 25 },
+        { label: "Identifying individual requirements\u2026", pct: 40 },
+        { label: "Evaluating compliance for each requirement\u2026", pct: 55 },
+        { label: "Scoring confidence levels\u2026", pct: 70 },
+        { label: "Generating suggested fixes for gaps\u2026", pct: 82 },
+        { label: "Building your compliance matrix\u2026", pct: 92 },
+        { label: "Almost there \u2014 finalizing results\u2026", pct: 97 }
+    ];
+    var funSayings = [
+        "Good things come to those who wait\u2026 and upload large PDFs.",
+        "Still faster than reading 135 requirements by hand \u2615",
+        "Our AI is reading the fine print so you don\u2019t have to.",
+        "Fun fact: a human would take 4+ hours to do this manually.",
+        "Larger files = more requirements = better insights. Worth it!",
+        "The AI is dotting every i and crossing every compliance t.",
+        "Brewing compliance results\u2026 almost done percolating.",
+        "Teaching the AI to read legalese was the hard part.",
+        "Your future self will thank you for waiting \u2728",
+        "Crunching through your docs like a caffeinated auditor.",
+        "Compliance never sleeps. Neither does our AI.",
+        "Big docs, big results. Hang tight!",
+        "Rome wasn\u2019t audited in a day\u2026 but we\u2019re close."
+    ];
+    var i = 0;
+    var funIdx = 0;
+    function advance() {
+        if (i < steps.length) {
+            var s = steps[i];
+            document.getElementById('progressBar').style.width = s.pct + '%';
+            document.getElementById('stepLabel').textContent = s.label;
+            document.getElementById('stepPct').textContent = s.pct + '%';
+            document.getElementById('tipText').textContent = s.label;
+            i++;
+        } else {
+            var pick = funSayings[Math.floor(Math.random() * funSayings.length)];
+            document.getElementById('tipText').textContent = pick;
+            document.getElementById('stepLabel').textContent = pick;
+        }
+    }
+    advance();
+    var stepTimer = setInterval(function() {
+        advance();
+        if (i >= steps.length) {
+            clearInterval(stepTimer);
+            setInterval(advance, 6000);
+        }
+    }, 2500);
+});
+document.getElementById('sampleBtn').addEventListener('click', function() {
+    var btn = this;
+    btn.disabled = true;
+
+    // Animate drop zone 1
+    var zone1 = document.getElementById('dropZone1');
+    var text1 = zone1.querySelector('.drop-text');
+    var name1 = zone1.querySelector('.file-name');
+    zone1.classList.add('drag-over');
+    setTimeout(function() {
+        zone1.classList.remove('drag-over');
+        text1.classList.add('d-none');
+        name1.textContent = 'sample-requirements.txt';
+        name1.classList.remove('d-none');
+        zone1.querySelector('.drop-icon').innerHTML = '<i class="bi bi-file-earmark-check"></i>';
+    }, 600);
+
+    // Animate drop zone 2
+    setTimeout(function() {
+        var zone2 = document.getElementById('dropZone2');
+        var text2 = zone2.querySelector('.drop-text');
+        var name2 = zone2.querySelector('.file-name');
+        zone2.classList.add('drag-over');
+        setTimeout(function() {
+            zone2.classList.remove('drag-over');
+            text2.classList.add('d-none');
+            name2.textContent = 'sample-response.txt';
+            name2.classList.remove('d-none');
+            zone2.querySelector('.drop-icon').innerHTML = '<i class="bi bi-file-earmark-check"></i>';
+        }, 600);
+    }, 800);
+
+    // After animation, light up Analyze button then auto-submit to TrySample
+    setTimeout(function() {
+        var analyzeBtn = document.getElementById('analyzeBtn');
+        analyzeBtn.classList.add('pulse-highlight');
+        var form = document.getElementById('uploadForm');
+        // Rewire form to TrySample and remove file required attributes
+        form.action = '@Url.Action("TrySample", "Analysis")';
+        form.querySelectorAll('input[type="file"]').forEach(function(inp) { inp.removeAttribute('required'); });
+
+        // Auto-click after a brief pause so user sees the highlighted button
+        setTimeout(function() {
+            analyzeBtn.click();
+        }, 800);
+    }, 2000);
+});
+</script>

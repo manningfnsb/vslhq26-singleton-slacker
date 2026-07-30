@@ -1,0 +1,366 @@
+@model PolicyProof.Models.AnalysisViewModel
+@{
+    ViewData["Title"] = "Compliance Results";
+}
+
+<style>
+.score-ring { position: relative; width: 120px; height: 120px; margin: 0 auto; }
+.score-ring svg { transform: rotate(-90deg); width: 120px; height: 120px; }
+.score-ring circle { fill: none; stroke-width: 8; stroke-linecap: round; }
+.score-ring .bg { stroke: #e9ecef; }
+.score-ring .progress-ring { transition: stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1); }
+.score-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1.6rem; font-weight: 600; letter-spacing: -0.5px; }
+.stat-card { border-radius: 10px; border: none; transition: transform 0.15s ease, box-shadow 0.15s ease; }
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
+.stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; color: #6c757d; }
+.stat-number { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+.stat-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.detail-cell { display: none; padding: 1rem 1.5rem !important; background: #f8f9fa; border-top: none !important; }
+.detail-cell.show { display: table-row; }
+.clickable-row { cursor: pointer; transition: background 0.15s; }
+.clickable-row:hover { background: #f8f9fa; }
+.clickable-row td:first-child::before { content: "\25B6"; margin-right: 6px; font-size: 0.6rem; color: #adb5bd; transition: transform 0.2s; display: inline-block; }
+.clickable-row.expanded td:first-child::before { transform: rotate(90deg); }
+.assessment-banner { border-radius: 10px; padding: 1.25rem 1.5rem; flex-wrap: wrap; gap: 0.75rem; background: #dbeafe !important; color: #1e3a5f !important; border: 1px solid #bfdbfe; }
+.assessment-banner h5, .assessment-banner span, .assessment-banner strong, .assessment-banner small { color: #1e3a5f !important; }
+.table thead th { position: sticky; top: 0; z-index: 1; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.3px; }
+.print-header { display: none; }
+</style>
+<style media="print">
+  body { font-size: 11pt; color: #000 !important; background: #fff !important; }
+  .navbar, footer, .filter-btn, #exportCsv, #exportPdf, .btn-primary, .no-print { display: none !important; }
+  .print-header { display: block !important; margin-bottom: 1rem; border-bottom: 2px solid #1e3a5f; padding-bottom: 0.5rem; }
+  .print-header h3 { margin: 0; font-size: 16pt; color: #1e3a5f; }
+  .print-header small { font-size: 9pt; color: #555; }
+  .container-fluid { padding: 0 !important; }
+  .assessment-banner { background: #f0f7ff !important; border: 1px solid #999 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .score-ring { width: 80px; height: 80px; }
+  .score-ring svg { width: 80px; height: 80px; }
+  .stat-card, .card { box-shadow: none !important; border: 1px solid #ddd !important; }
+  .detail-cell { display: table-row !important; background: #f9f9f9 !important; }
+  .clickable-row td:first-child::before { content: "" !important; }
+  .table { font-size: 9pt; }
+  .badge { border: 1px solid #999; }
+  .bg-success { background: #d4edda !important; color: #155724 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bg-warning { background: #fff3cd !important; color: #856404 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bg-danger { background: #f8d7da !important; color: #721c24 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .border-success { border-color: #198754 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .border-warning { border-color: #e67700 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .border-danger { border-color: #dc3545 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .stat-dot { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .row { page-break-inside: avoid; }
+  tr { page-break-inside: avoid; }
+</style>
+
+<div class="container-fluid mt-2">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-warning shadow-sm" style="border-radius: 10px; border: 1px solid #ffc107;">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>@Model.ErrorMessage
+        </div>
+        <a asp-controller="Analysis" asp-action="Upload" class="btn btn-primary" style="background: #dbeafe; color: #1e3a5f; border: 1px solid #bfdbfe; border-radius: 8px; font-weight: 600;">
+            <i class="bi bi-arrow-repeat me-1"></i>Try Again
+        </a>
+    }
+    else if (Model.Result == null || Model.Result.Requirements == null || Model.Result.Requirements.Count == 0)
+    {
+        <div class="text-center py-5">
+            <i class="bi bi-clipboard-x" style="font-size: 3rem; color: #adb5bd;"></i>
+            <h5 class="mt-3 text-muted">No results to display</h5>
+            <p class="text-muted">Try uploading your documents again.</p>
+            <a asp-controller="Analysis" asp-action="Upload" class="btn" style="background: #dbeafe; color: #1e3a5f; border: 1px solid #bfdbfe; border-radius: 8px; font-weight: 600;">
+                <i class="bi bi-plus-circle me-1"></i>New Analysis
+            </a>
+        </div>
+    }
+    else
+    {
+        var score = Model.Result.Summary.OverallScore;
+            var scoreColor = score >= 70 ? "#198754" : score >= 40 ? "#e67700" : "#dc3545";
+            var circumference = 2 * 3.14159 * 50;
+            var offset = circumference - (score / 100.0 * circumference);
+
+
+        <!-- Assessment Banner -->
+        <div class="assessment-banner shadow-sm mb-4">
+            <h5 class="mb-1"><i class="bi bi-clipboard2-check me-2"></i>Compliance Assessment</h5>
+            <span>@Model.Result.Summary.OverallAssessment</span>
+            <div class="mt-2">
+                <strong>@Model.Result.Summary.GreenCount</strong> of <strong>@Model.Result.Summary.TotalRequirements</strong> requirements met
+                <br/><small>@Model.RequirementsFileName vs @Model.ResponseFileName &middot; @Model.AnalysisDuration.TotalSeconds.ToString("F1")s</small>
+            </div>
+        </div>
+
+        <!-- Score + Stats Row -->
+        <div class="row mb-4 align-items-center g-3">
+            <div class="col-md-3">
+                <div class="card border-0 shadow-sm text-center p-4">
+                    <div class="score-ring">
+                        <svg viewBox="0 0 120 120">
+                            <circle class="bg" cx="60" cy="60" r="50"/>
+                            <circle class="progress-ring" cx="60" cy="60" r="50"
+                                stroke="@scoreColor"
+                                stroke-dasharray="@circumference.ToString("F1")"
+                                stroke-dashoffset="@circumference.ToString("F1")"
+                                data-target="@offset.ToString("F1")" />
+                        </svg>
+                        <div class="score-value" style="color: @scoreColor">@score%</div>
+                    </div>
+                    <div class="stat-label mt-2">Overall Score</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card shadow-sm p-3">
+                    <div class="d-flex align-items-center">
+                        <span class="stat-dot" style="background:#198754"></span>
+                        <span class="stat-label">Compliant</span>
+                    </div>
+                    <div class="stat-number mt-1" style="color:#198754">@Model.Result.Summary.GreenCount</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card shadow-sm p-3">
+                    <div class="d-flex align-items-center">
+                        <span class="stat-dot" style="background:#e67700"></span>
+                        <span class="stat-label">Partial</span>
+                    </div>
+                    <div class="stat-number mt-1" style="color:#e67700">@Model.Result.Summary.YellowCount</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card stat-card shadow-sm p-3">
+                    <div class="d-flex align-items-center">
+                        <span class="stat-dot" style="background:#dc3545"></span>
+                        <span class="stat-label">Non-Compliant</span>
+                    </div>
+                    <div class="stat-number mt-1" style="color:#dc3545">@Model.Result.Summary.RedCount</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projected Score -->
+        @if (Model.Result.Summary.RedCount > 0 || Model.Result.Summary.YellowCount > 0)
+        {
+            var projectedScore = (int)Math.Round(
+                (Model.Result.Summary.GreenCount + Model.Result.Summary.RedCount + Model.Result.Summary.YellowCount * 0.5)
+                / (double)Model.Result.Summary.TotalRequirements * 100);
+            var projectedIfAllFixed = 100;
+            var projectedIfRedsFixed = (int)Math.Round(
+                (Model.Result.Summary.GreenCount + Model.Result.Summary.RedCount)
+                / (double)Model.Result.Summary.TotalRequirements * 100);
+            <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #f0fdf4, #dcfce7); border: 1px solid #bbf7d0 !important;">
+                <div class="card-body py-3 px-4">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-graph-up-arrow me-2" style="font-size: 1.3rem; color: #16a34a;"></i>
+                        <div>
+                            <strong style="color: #15803d;">Projected Score</strong>
+                            <span class="ms-2" style="color: #166534;">
+                                Fix all <strong class="text-danger">@Model.Result.Summary.RedCount red gap(s)</strong>
+                                and your score jumps to <strong style="color: #16a34a;">@(projectedIfRedsFixed)%</strong>.
+                                @if (Model.Result.Summary.YellowCount > 0)
+                                {
+                                    <span>Resolve the <strong class="text-warning">@Model.Result.Summary.YellowCount yellow(s)</strong> too for <strong style="color: #16a34a;">100%</strong>.</span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Quick Wins -->
+            var quickWins = Model.Result.Requirements
+                .Where(r => r.Status.Equals("yellow", StringComparison.OrdinalIgnoreCase)
+                          && !string.IsNullOrWhiteSpace(r.SuggestedFix))
+                .OrderBy(r => r.SuggestedFix.Length)
+                .Take(3)
+                .ToList();
+        @if (quickWins.Count > 0)
+        {
+            <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #fffbeb, #fef3c7); border: 1px solid #fde68a !important;">
+                <div class="card-body py-3 px-4">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-lightning-charge-fill me-2" style="font-size: 1.3rem; color: #d97706;"></i>
+                        <strong style="color: #92400e;">Quick Wins</strong>
+                        <small class="text-muted ms-2">— easiest fixes to boost your score</small>
+                    </div>
+                    @foreach (var qw in quickWins)
+                    {
+                        <div class="d-flex align-items-start mb-1">
+                            <span class="badge bg-warning me-2 mt-1" style="font-size: 0.7rem;">@qw.RequirementId</span>
+                            <small style="color: #78350f;">@qw.SuggestedFix</small>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+
+        <!-- Print Header (visible only when printing) -->
+        <div class="print-header">
+            <h3><i class="bi bi-shield-check me-1"></i>PolicyProof Compliance Report</h3>
+            <small>@Model.RequirementsFileName vs @Model.ResponseFileName &middot; Generated @DateTime.Now.ToString("MMM d, yyyy h:mm tt")</small>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <div class="btn-group" role="group">
+                <button class="btn btn-sm btn-outline-secondary filter-btn active" data-filter="all">All (@Model.Result.Summary.TotalRequirements)</button>
+                <button class="btn btn-sm btn-outline-danger filter-btn" data-filter="Red">Red (@Model.Result.Summary.RedCount)</button>
+                <button class="btn btn-sm btn-outline-warning filter-btn" data-filter="Yellow">Yellow (@Model.Result.Summary.YellowCount)</button>
+                <button class="btn btn-sm btn-outline-success filter-btn" data-filter="Green">Green (@Model.Result.Summary.GreenCount)</button>
+            </div>
+            <div class="ms-2">
+                <select class="form-select form-select-sm" id="categoryFilter" style="width:auto;display:inline-block;font-size:0.8rem;">
+                    <option value="all">All Categories</option>
+                    @foreach (var cat in Model.Result.Requirements.Select(r => r.Category).Where(c => !string.IsNullOrEmpty(c)).Distinct().OrderBy(c => c))
+                    {
+                        <option value="@cat">@cat</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <button class="btn btn-sm btn-outline-danger me-1" id="expandReds"><i class="bi bi-exclamation-circle me-1"></i>Expand Reds</button>
+                <button class="btn btn-sm btn-outline-dark" id="exportPdf"><i class="bi bi-printer me-1"></i>Print / Save as PDF</button>
+                <button class="btn btn-sm btn-outline-dark ms-1" id="exportCsv"><i class="bi bi-download me-1"></i>Export CSV</button>
+                <a asp-controller="Analysis" asp-action="Upload" class="btn btn-sm btn-primary ms-2"><i class="bi bi-plus-circle me-1"></i>New Analysis</a>
+            </div>
+        </div>
+
+        <!-- Compliance Table -->
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-hover mb-0" id="complianceTable">
+                <thead class="table-dark">
+                    <tr><th style="width:100px">ID</th><th>Requirement</th><th style="width:110px">Category</th><th style="width:100px">Status</th><th style="width:100px">Confidence</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Result.Requirements)
+                {
+                    var badgeBg = item.Status == "Green" ? "success" : item.Status == "Yellow" ? "warning" : "danger";
+                    var rowBorder = item.Status == "Green" ? "border-start border-success border-3" : item.Status == "Yellow" ? "border-start border-warning border-3" : "border-start border-danger border-3";
+                    <tr class="clickable-row @rowBorder compliance-row" data-status="@item.Status" data-category="@item.Category">
+                        <td><strong>@item.RequirementId</strong></td>
+                        <td>@item.Requirement</td>
+                        <td><span class="badge bg-secondary bg-opacity-25 text-dark" style="font-weight:500;font-size:0.75rem;">@item.Category</span></td>
+                        <td><span class="badge bg-@badgeBg">@item.Status</span></td>
+                        <td><small class="text-muted">@item.Confidence</small></td>
+                    </tr>
+                    <tr class="detail-cell" data-status="@item.Status" data-category="@item.Category">
+                        <td colspan="5">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <h6 class="text-muted mb-1"><i class="bi bi-quote me-1"></i>Evidence</h6>
+                                    <em>"@item.EvidenceQuote"</em>
+                                    <br/><small class="text-muted">@item.Citation</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-muted mb-1"><i class="bi bi-exclamation-circle me-1"></i>Gap</h6>
+                                    <span>@item.GapDescription</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <h6 class="text-muted mb-1"><i class="bi bi-lightbulb me-1"></i>Suggested Fix</h6>
+                                    <span>@item.SuggestedFix</span>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<script>
+// Animate score ring on load
+setTimeout(function() {
+    var ring = document.querySelector(".progress-ring");
+    if (ring) {
+        ring.setAttribute("stroke-dashoffset", ring.dataset.target);
+    }
+}, 300);
+
+// Expand/collapse rows
+document.querySelectorAll(".clickable-row").forEach(function(row) {
+    row.addEventListener("click", function() {
+        var detail = this.nextElementSibling;
+        if (detail && detail.classList.contains("detail-cell")) {
+            detail.classList.toggle("show");
+            this.classList.toggle("expanded");
+        }
+    });
+});
+
+// Combined filter function
+function applyFilters() {
+    var statusFilter = document.querySelector('.filter-btn.active').dataset.filter;
+    var catFilter = document.getElementById('categoryFilter').value;
+    document.querySelectorAll('.clickable-row').forEach(function(row) {
+        var statusOk = (statusFilter === 'all' || row.dataset.status === statusFilter);
+        var catOk = (catFilter === 'all' || row.dataset.category === catFilter);
+        var show = statusOk && catOk;
+        row.style.display = show ? '' : 'none';
+        var detail = row.nextElementSibling;
+        if (detail && detail.classList.contains('detail-cell')) {
+            detail.style.display = show ? '' : 'none';
+            if (!show) { detail.classList.remove('show'); row.classList.remove('expanded'); }
+        }
+    });
+}
+
+// Filter buttons
+document.querySelectorAll(".filter-btn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+        document.querySelectorAll(".filter-btn").forEach(function(b) { b.classList.remove("active"); });
+        this.classList.add("active");
+        applyFilters();
+    });
+});
+
+// Category filter
+document.getElementById('categoryFilter').addEventListener('change', function() {
+    applyFilters();
+});
+
+// CSV Export
+document.getElementById("exportCsv").addEventListener("click", function() {
+    var rows = document.querySelectorAll(".clickable-row");
+    var lines = ["ID,Requirement,Category,Status,Confidence,Evidence,Gap,Suggested Fix"];
+    rows.forEach(function(row) {
+        var cells = Array.from(row.querySelectorAll("td")).map(function(c){ return c.innerText.replace(/\u25B6/g, "").trim(); });
+        var detail = row.nextElementSibling;
+        var cols = detail ? detail.querySelectorAll(".col-md-4 span, .col-md-4 em") : [];
+        var extra = Array.from(cols).map(function(c){ return c.innerText; });
+        var all = cells.concat(extra);
+        lines.push(all.map(function(v){ return '"' + v.replace(/"/g, '""').replace(/[\r\n]+/g, ' ') + '"'; }).join(","));
+    });
+    var blob = new Blob([lines.join("\n")], {type: "text/csv"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "compliance-report.csv"; a.click();
+    URL.revokeObjectURL(url);
+});
+
+// PDF Export via browser print
+document.getElementById('exportPdf').addEventListener('click', function() {
+    document.querySelectorAll('.detail-cell').forEach(function(d) { d.classList.add('show'); });
+    document.querySelectorAll('.clickable-row').forEach(function(r) { r.classList.add('expanded'); });
+    window.print();
+});
+
+// Expand all reds
+document.getElementById('expandReds').addEventListener('click', function() {
+    // First filter to reds
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    document.querySelector('[data-filter="Red"]').classList.add('active');
+    document.querySelectorAll('.clickable-row').forEach(function(row) {
+        var isRed = row.dataset.status === 'Red';
+        row.style.display = isRed ? '' : 'none';
+        var detail = row.nextElementSibling;
+        if (detail && detail.classList.contains('detail-cell')) {
+            detail.style.display = isRed ? '' : 'none';
+            if (isRed) { detail.classList.add('show'); row.classList.add('expanded'); }
+            else { detail.classList.remove('show'); row.classList.remove('expanded'); }
+        }
+    });
+});
+</script>

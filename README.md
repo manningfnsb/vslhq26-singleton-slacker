@@ -94,7 +94,7 @@ dotnet run
 
 ## Demo
 
-- Video file in this repo: `./demo/demo.mp4`
+- Video file in this repo: `./demo/policy-proof.mp4`
 - Azure Deployment: https://app-i2-policyproof-dna9e8gta2axeydt.canadacentral-01.azurewebsites.net/
 
 ## Known limitations

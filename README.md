@@ -21,11 +21,11 @@ In short: this is a **business app first**, with LLM capabilities embedded to de
 ## Architecture
 
 ```
-┌──────────────┐     ┌──────────────────┐     ┌─────────────────┐
+┌──────────────┐     ┌──────────────────┐      ┌─────────────────┐
 │   Browser    │────▶│  ASP.NET Core    │────▶│  Azure OpenAI   │
 │  (Upload +   │◀────│  MVC App         │◀────│  (gpt-5-mini)   │
-│   Results)   │     │                  │     │                 │
-└──────────────┘     │  ┌────────────┐  │     └─────────────────┘
+│   Results)   │     │                  │      │                 │
+└──────────────┘     │  ┌────────────┐  │      └─────────────────┘
 					 │  │ Text       │  │
 					 │  │ Extractor  │  │
 					 │  ├────────────┤  │

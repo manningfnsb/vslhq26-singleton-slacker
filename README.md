@@ -94,7 +94,7 @@ dotnet run
 
 > ⚠️ Do NOT commit secrets. Use App Service configuration or `dotnet user-secrets` locally.
 
-## Demo (required)
+## Demo
 
 - Video file in this repo: `./demo/demo.mp4`
 - Deployed URL: _(will be added after Azure deployment)_

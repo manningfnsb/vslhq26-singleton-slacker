@@ -17,6 +17,8 @@
 .btn-analyze { border-radius: 8px; font-weight: 600; letter-spacing: 0.3px; padding: 0.75rem; background: #dbeafe; color: #1e3a5f; border: 1px solid #bfdbfe; transition: background 0.15s, transform 0.1s; }
 .btn-analyze:hover { background: #bfdbfe; color: #1e3a5f; transform: translateY(-1px); }
 .btn-analyze:active { transform: translateY(0); }
+.btn-analyze:disabled { color: #1e3a5f; }
+.btn-analyze:disabled .spinner-border { color: #1e3a5f; }
 .supported-formats { font-size: 0.8rem; letter-spacing: 0.3px; }
 .pulse-highlight { box-shadow: 0 0 0 6px rgba(96,165,250,0.4); background: #bfdbfe !important; transition: box-shadow 0.3s, background 0.3s; }
 </style>
@@ -60,7 +62,7 @@
             <div class="text-center mt-3 supported-formats text-muted">
                 Supported formats: .txt, .docx, .pdf &middot; PII is masked before analysis
             </div>
-            <div class="text-center mt-4 p-3" style="background: #f0f9ff; border: 1px dashed #93c5fd; border-radius: 10px;">
+            <div class="text-center mt-4 p-3 sample-callout" style="background: #f0f9ff; border: 1px dashed #93c5fd; border-radius: 10px;">
                 <small class="d-block text-muted mb-2">No documents handy? See it in action first.</small>
                 <button type="button" class="btn btn-analyze" id="sampleBtn" style="padding: 0.5rem 1.5rem;">
                     <i class="bi bi-play-circle me-1"></i>Try with sample documents

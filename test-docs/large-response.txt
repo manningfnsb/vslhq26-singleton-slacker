@@ -1,0 +1,365 @@
+# Cloud Infrastructure Services Proposal
+# Submitted by: Arctic Cloud Solutions, LLC
+# In Response to: Fairbanks North Star Borough Enterprise Cloud Infrastructure RFP
+# Date: July 2026
+
+## Executive Summary
+
+Arctic Cloud Solutions (ACS) is pleased to submit this proposal in response to the Fairbanks North Star Borough's Enterprise Cloud Infrastructure RFP. With over 8 years of experience delivering cloud solutions to government entities across Alaska and the Pacific Northwest, we are uniquely positioned to meet the Borough's requirements for a secure, scalable, and compliant cloud platform.
+
+Our proposed solution leverages Microsoft Azure as the primary cloud platform, complemented by our managed services layer providing 24/7 operations, security monitoring, and dedicated Alaska-based support. We have successfully completed similar migrations for the Matanuska-Susitna Borough, the City of Juneau, and the State of Alaska Department of Administration.
+
+## Section 1: Vendor Qualifications Response
+
+### 1.1 Company Background
+
+Arctic Cloud Solutions was founded in 2018 and has provided cloud infrastructure services exclusively to public sector organizations for 8 years. Our team of 45 certified cloud professionals includes 12 based in Fairbanks and Anchorage, ensuring local presence and Alaska business hours coverage.
+
+We currently hold the following certifications:
+- SOC 2 Type II (audit completed March 2026, report available upon request)
+- ISO 27001:2022
+- Microsoft Azure Expert MSP
+- AWS Public Sector Partner
+
+Our proposed platform, Microsoft Azure Government, maintains FedRAMP High authorization (not just Moderate), exceeding the Borough's minimum requirement.
+
+### References
+
+1. Matanuska-Susitna Borough - Cloud Migration (2023-2024)
+   Contact: Sarah Chen, IT Director - sarah.chen@matsugov.us - (907) 555-0142
+   Scope: Full datacenter migration of 200+ workloads to Azure Government
+
+2. City of Juneau - Hybrid Cloud Infrastructure (2022-2023)
+   Contact: James Whitehorse, CIO - j.whitehorse@juneau.org - (907) 555-0198
+   Scope: Hybrid cloud deployment with ExpressRoute connectivity
+
+3. State of Alaska, Dept. of Administration - Cloud Security Operations (2024-present)
+   Contact: Maria Rodriguez, CISO - maria.rodriguez@alaska.gov - (907) 555-0234
+   Scope: Managed security operations and compliance monitoring
+
+### Financial Stability
+
+Arctic Cloud Solutions has demonstrated consistent growth with annual revenues exceeding $12M in FY2025. Audited financial statements for FY2023, FY2024, and FY2025 are included as Appendix A of this proposal. We maintain a current ratio of 2.3 and zero long-term debt.
+
+## Section 2: Project Management Response
+
+### Dedicated Project Manager
+
+We will assign Michael Thompson, PMP, CSM, as the dedicated Project Manager for this engagement. Michael is based in Fairbanks and has managed three comparable public sector cloud migrations in Alaska. He is available Monday through Friday during AKST business hours (8:00 AM - 5:00 PM AKST) and carries an after-hours emergency phone.
+
+### Project Plan
+
+Upon contract execution, our team will deliver a comprehensive project plan within 10 business days (5 days ahead of the required 15 days). The plan will include:
+- Work breakdown structure with all milestones and deliverables
+- Resource allocation matrix showing named personnel for each workstream
+- RACI chart for all project activities
+- Communication plan aligned with Borough preferences
+- Quality management plan with acceptance criteria for each deliverable
+
+### Status Reporting
+
+We commit to:
+- Weekly status meetings (Tuesday afternoons, AKST) with Borough IT leadership
+- Written status reports delivered within 24 hours of each meeting
+- Monthly steering committee presentations with executive dashboard
+- Real-time project dashboard access via our project management portal
+
+### Risk Management
+
+Our risk management approach includes:
+- Risk register maintained in ServiceNow (integrated with Borough's instance)
+- Monthly risk review at steering committee with mitigation status updates
+- Proactive risk identification through lessons learned from prior Alaska government projects
+- Quantitative risk analysis for high-impact items
+
+### Escalation Path
+
+Our guaranteed escalation response times:
+- Critical (P1): 30-minute response, 1-hour engagement of escalation team (exceeds 1-hour requirement)
+- High (P2): 2-hour response (exceeds 4-hour requirement)
+- Medium (P3): 4-hour response (exceeds 8-hour requirement)
+- Low (P4): 48-hour response (best effort)
+
+## Section 3: Technical Architecture Response
+
+### 3.1 Cloud Platform
+
+Our solution is built on Microsoft Azure Government, hosted in US sovereign cloud regions (US Gov Virginia and US Gov Arizona). Key platform capabilities:
+
+**Hybrid Architecture**: We will deploy Azure Arc to extend Azure management to the Borough's existing VMware environment, providing a single pane of glass for both on-premises and cloud workloads. Azure Stack HCI can be deployed on-premises for workloads requiring local data residency.
+
+**Availability**: Azure Government provides 99.9% uptime SLA for virtual machines. Our architecture uses paired regions with manual failover procedures (estimated 45-60 minutes).
+
+**Operating Systems**: Full support for Windows Server 2019, 2022, and 2025 as well as Linux distributions including RHEL 8/9, Ubuntu 22.04/24.04, and SUSE Linux Enterprise.
+
+**Containers**: Azure Kubernetes Service (AKS) with managed control plane, integrated with Azure Container Registry and Azure Policy for governance.
+
+**Infrastructure as Code**: Native support for Terraform (with AzureRM provider), Bicep, and ARM templates. We recommend Bicep for new deployments with Terraform for multi-cloud scenarios.
+
+**Serverless**: Azure Functions (consumption and premium plans), Azure Logic Apps, and Azure Event Grid for event-driven architectures.
+
+
+
+**Managed Databases**: Azure SQL (SQL Server compatible), Azure Database for PostgreSQL Flexible Server, and Azure Cosmos DB (MongoDB API compatible).
+
+### 3.2 Networking
+
+**Private Connectivity**: We will provision a 1 Gbps Azure ExpressRoute circuit from the Borough's primary facility to Azure Government US Gov Virginia, with a 500 Mbps secondary circuit to US Gov Arizona for redundancy.
+
+**Network Segmentation**: Azure Virtual Networks with Network Security Groups (NSGs) and Azure Firewall provide macro and micro-segmentation. Azure Private Link ensures PaaS services are accessed over private endpoints.
+
+**DDoS Protection**: Azure DDoS Protection Standard is included for all public-facing endpoints with adaptive tuning and mitigation analytics.
+
+**IPv4**: Full IPv4 support. IPv6 is not currently supported in our Government cloud deployment.
+
+**DNS**: Azure DNS for Borough domains. DNSSEC is not available in Azure Government at this time.
+
+**WAF**: Azure Web Application Firewall with OWASP 3.2 rule set, bot protection, and custom rules for Borough-specific requirements.
+
+**VPN Backup**: Site-to-site VPN tunnels configured as automatic failover for ExpressRoute. BGP routing ensures seamless failover within 30 seconds.
+
+
+
+### 3.3 Storage
+
+**Object Storage**: Azure Blob Storage with 99.999999999% (11 nines) durability in LRS configuration, with GRS providing 16 nines durability for critical data.
+
+**Tiered Storage**: Hot, Cool, Cold, and Archive tiers with automated lifecycle management policies. We will configure policies aligned with Borough data classification.
+
+**Block Storage**: Azure Managed Disks with Premium SSD v2 providing configurable IOPS (up to 80,000) and throughput (up to 1,200 MB/s) with SLA-backed guarantees.
+
+**File Storage**: Azure Files with SMB 2.1 support. NFS is in preview and not available in Government regions.
+
+**Immutable Storage**: WORM policies for Blob Storage only. Other storage types planned for future.
+
+**Encryption**: AES-256 encryption at rest for all storage services. Customer-managed keys via Azure Key Vault (FIPS 140-2 Level 3 validated HSM) available for all services.
+
+**Cross-Region Replication**: GRS and GZRS replication with configurable RPO (typically 15 minutes or less for async replication).
+
+
+
+
+
+**Backup and Recovery**: Azure Backup with file-level, volume-level, and application-consistent recovery options. Cross-region restore for disaster recovery scenarios.
+
+## Section 4: Security Response
+
+### 4.1 Identity and Access Management
+
+**SSO Integration**: Azure Government natively integrates with Microsoft Entra ID. The Borough's existing Entra ID tenant will serve as the identity provider for all cloud resources.
+
+**MFA**: Microsoft Entra MFA enforced for all administrative access. Supports push notifications, TOTP, phone call, and hardware security keys.
+
+**RBAC**: Azure RBAC with 100+ built-in roles. We will implement custom roles following principle of least privilege, with quarterly access reviews.
+
+**PAM**: Microsoft Entra Privileged Identity Management (PIM) for just-in-time access elevation with approval workflows, time-bound assignments, and access reviews.
+
+**Identity Governance**: Entra ID Governance with access packages, entitlement management, and quarterly access certification campaigns.
+
+
+
+**Service Accounts**: Managed Identities for Azure resources eliminating credential management. Where service principals are required, automatic rotation every 90 days.
+
+**Federation**: B2B collaboration via Entra External ID for inter-agency access without credential sharing. Trust relationships configurable per partner organization.
+
+**Audit Logging**: All authentication and authorization events logged to Azure Monitor and Microsoft Sentinel with tamper-evident storage (immutable log retention).
+
+
+
+### 4.2 Data Protection
+
+**TLS**: All data in transit encrypted with TLS 1.3. TLS 1.2 and below disabled across all services. Certificate pinning for critical service-to-service communication.
+
+**DLP**: Microsoft Purview DLP policies integrated across Azure services, SharePoint, Exchange, and Teams. Custom sensitive information types for Borough-specific data patterns.
+
+**CMEK**: Customer-managed keys stored in Azure Key Vault with HSM backing (FIPS 140-2 Level 3 via Azure Key Vault Managed HSM).
+
+**Data Classification**: Microsoft Purview Information Protection with sensitivity labels. Auto-classification for common data types with manual override capability.
+
+**Key Management**: Azure Key Vault with automatic rotation policies, soft-delete protection, and purge protection. Dual-person authorization for critical key operations.
+
+**TDE**: Transparent Data Encryption enabled by default for Azure SQL and other managed databases. CMEK-backed TDE available for enhanced control.
+
+
+
+**Certificate Management**: Azure Key Vault certificate management with automated renewal for Let's Encrypt and DigiCert. Integration with Azure Application Gateway for automated deployment.
+
+**Secrets Management**: Azure Key Vault for all secrets (API keys, connection strings, passwords). Full audit logging of all access and operations. Integration with Azure DevOps for CI/CD pipeline secrets.
+
+**Data Masking**: Dynamic Data Masking for Azure SQL in production. Static masking via Microsoft Purview for non-production environment provisioning.
+
+### 4.3 Threat Protection
+
+**SOC**: Our 24/7 Security Operations Center is staffed by certified analysts (CISSP, GCIH, CEH) monitoring Borough environments around the clock. SOC is based in Anchorage with backup facility in Seattle.
+
+**SIEM**: Microsoft Sentinel deployed in Azure Government with 180 days of hot storage (exceeds 90-day requirement). Custom analytics rules, workbooks, and hunting queries tailored for government environments.
+
+**SOAR**: Sentinel automation rules and playbooks for automated response to common threats including brute force attacks, impossible travel alerts, and known malware indicators.
+
+**Vulnerability Scanning**: Microsoft Defender Vulnerability Management with daily agent-based scanning and weekly authenticated network scans.
+
+**EDR**: Microsoft Defender for Endpoint deployed on all virtual machines with automated investigation and response capabilities.
+
+**Email Security**: Microsoft Defender for Office 365 Plan 2 with anti-phishing, safe attachments, safe links, and attack simulation training.
+
+**Container Security**: Microsoft Defender for Containers with admission control, runtime protection, and vulnerability scanning integrated into CI/CD pipelines.
+
+**API Security**: Azure API Management with threat detection. Microsoft Defender for APIs monitoring for anomalous access patterns.
+
+**Deception Technology**: We deploy custom honeypots within the Borough's cloud environment using Azure Sentinel deception capabilities. Honeytokens placed in Active Directory, key vaults, and storage accounts as early warning indicators.
+
+**Threat Intelligence**: Microsoft Defender Threat Intelligence integrated with Sentinel. Additional feeds from CISA, MS-ISAC, and Alaska specific threat intelligence sharing communities.
+
+## Section 5: Compliance and Governance Response
+
+### 5.1 Regulatory Compliance
+
+**Alaska Data Privacy (AS 45.48)**: Azure Government complies with Alaska state data privacy requirements. All Borough data processed and stored exclusively within US sovereign cloud boundaries.
+
+**CJIS**: Azure Government is CJIS compliant. We maintain a signed CJIS Security Addendum and will support the Borough's CJIS audit requirements. Dedicated CJIS-compliant subscription for law enforcement data.
+
+**HIPAA/HITECH**: Azure Government maintains a signed BAA. HIPAA-compliant configurations pre-deployed for health services workloads with additional safeguards for PHI.
+
+**PCI DSS**: Azure Government is PCI DSS Level 1 Service Provider certified. Dedicated PCI-compliant subscription with network isolation for payment processing.
+
+**ADA Section 508**: Azure Portal and all proposed management interfaces comply with WCAG 2.1 AA standards, meeting Section 508 requirements.
+
+**Compliance Dashboards**: Microsoft Defender for Cloud regulatory compliance dashboard with evidence collection. Custom workbooks for Borough-specific compliance frameworks.
+
+**Data Sovereignty**: All Borough data remains within Azure Government US regions. Azure Policy enforced to prevent resource creation outside approved regions.
+
+**CIS Benchmarks**: Automated assessment against CIS Azure Foundations Benchmark v2.0. Continuous compliance monitoring with automated remediation for common drift.
+
+**Records Retention**: Azure Policy enforced retention policies aligned with Borough records schedule. Immutable storage for records requiring preservation.
+
+**Chain of Custody**: Full audit trail for all data operations. Azure Activity Log, Diagnostic Logs, and Storage Analytics provide comprehensive chain of custody documentation.
+
+### 5.2 Governance
+
+**Resource Tagging**: Azure Policy enforcing mandatory tags (CostCenter, Environment, Owner, DataClassification, Application, Department). Tag inheritance from resource groups. Deny deployment if required tags missing.
+
+**Policy-as-Code**: Azure Policy definitions managed in Git repository with CI/CD deployment. Custom policy initiatives for Borough-specific requirements.
+
+**Cost Management**: Azure Cost Management + Billing with daily cost reporting, budget alerts at 80% and 95%, and monthly optimization recommendations. Dedicated FinOps analyst assigned to Borough account.
+
+**Spending Limits**: Azure Budgets with action groups triggering alerts and optional automated shutdowns for non-production environments.
+
+**Change Management**: Azure DevOps pipelines with approval gates for production deployments. Integration with ServiceNow change management workflows.
+
+**Multi-Environment**: Hub-spoke network topology with dedicated subscriptions for Development, Test, Staging, and Production. Promotion workflows via Azure DevOps with automated testing gates.
+
+**Asset Inventory**: Azure Resource Graph for real-time inventory. Microsoft Defender for Cloud asset inventory with automatic classification based on data sensitivity.
+
+**Sustainability**: Microsoft Emissions Impact Dashboard providing carbon footprint estimates for all Azure usage. Quarterly sustainability reports included in business reviews.
+
+**License Management**: Azure Hybrid Benefit tracking for Windows Server and SQL Server licenses. Microsoft 365 license utilization reporting.
+
+**Organizational Hierarchy**: Azure Management Groups aligned to Borough organizational structure for cost allocation and policy inheritance.
+
+## Section 6: Operations and Support Response
+
+### 6.1 Monitoring and Observability
+
+**Comprehensive Monitoring**: Azure Monitor covering infrastructure metrics, application insights, and custom business metrics. Single-pane dashboard for Borough IT leadership.
+
+**Custom Dashboards**: Azure Dashboards and Grafana integration with real-time visualization. Configurable refresh intervals from 5 seconds to 24 hours.
+
+**Alerting**: Azure Monitor Alerts with action groups supporting email, SMS, Microsoft Teams, PagerDuty, and ServiceNow ticket creation.
+
+**Distributed Tracing**: Application Insights with end-to-end distributed tracing for microservices. OpenTelemetry support for custom instrumentation.
+
+**Log Aggregation**: Log Analytics workspace with structured KQL queries. 1-year hot retention with 7-year cold retention for compliance requirements.
+
+**Synthetic Monitoring**: Azure Monitor availability tests with multi-step web tests from multiple global locations (US-focused for Borough services).
+
+**Capacity Planning**: Azure Advisor recommendations with predictive analytics via AI-powered insights. Monthly capacity reviews in operational meetings.
+
+**Custom Metrics**: Application Insights custom metrics API and Azure Monitor custom metrics for Borough-developed applications.
+
+**SLO Tracking**: Custom SLO dashboards in Grafana with error budget burn rate alerts. Monthly SLO reports included in operational reviews.
+
+**AIOps**: Azure Monitor AIOps with smart detection, anomaly grouping, and root cause analysis. Reduces alert noise by correlating related issues.
+
+### 6.2 Disaster Recovery
+
+**RTO - Tier 1**: Automated failover for Tier 1 applications with 2-hour RTO (exceeds 4-hour requirement). Azure Site Recovery with continuous replication.
+
+**RPO - Tier 1**: 15-minute RPO for Tier 1 applications using synchronous replication for databases and near-sync for application tiers.
+
+**DR Testing**: Monthly automated DR failover tests in isolated recovery environment. No impact to production workloads. Automated validation scripts confirm application functionality.
+
+**Runbook Automation**: Azure Automation runbooks for all DR procedures. Regularly tested and updated with each infrastructure change.
+
+**DR Reports**: Quarterly DR drill reports with detailed findings, remediation tracking, and improvement recommendations. Shared at steering committee.
+
+**Backup Immutability**: Azure Backup with immutable vaults. Multi-user authorization required for modifying backup policies. Ransomware protection validated quarterly.
+
+**Cross-Region DR**: Active-passive configuration between US Gov Virginia (primary) and US Gov Arizona (secondary). Per-application RPO/RTO configuration.
+
+**Application-Consistent Snapshots**: Azure Backup with VSS integration for Windows and custom scripts for Linux. Database-aware snapshots for SQL Server, PostgreSQL.
+
+**DR Orchestration**: Azure Site Recovery Plans with dependency-aware sequencing. Custom pre/post scripts for application-specific recovery steps.
+
+
+
+### 6.3 Support
+
+**24/7 Support**: Follow-the-sun support model with primary team in Anchorage (AKST hours) and backup teams in Seattle and Atlanta for after-hours coverage.
+
+**TAM**: Dedicated Technical Account Manager based in Fairbanks with deep knowledge of Borough infrastructure. Weekly office hours and monthly on-site visits.
+
+
+
+**Training**: 30-hour initial training covering Azure fundamentals. 8 hours annual online-only refresher.
+
+**Business Reviews**: Quarterly business reviews with capacity planning, cost optimization, security posture assessment, and roadmap alignment.
+
+**Roadmap**: 6-month service roadmap updated semi-annually. 30-day advance notice for breaking changes.
+
+**Post-Mortem**: Incident post-mortem reports delivered within 3 business days (exceeds 5-day requirement) for P1/P2 incidents. Blameless format with systemic improvements.
+
+**ServiceNow Integration**: Bi-directional integration with Borough's ServiceNow instance. Automated ticket creation, status sync, and resolution updates.
+
+**Dedicated Support**: Named support team of 4 engineers dedicated to the Borough account. Direct Slack/Teams channel for real-time communication.
+
+**Professional Services**: Pre-negotiated rates for architecture reviews ($175/hr), migrations ($150/hr), and optimization projects ($165/hr). 500 hours per year included in base contract.
+
+## Section 7: Migration Response
+
+### 7.1 Migration Planning
+
+**Discovery**: We will deploy Azure Migrate appliances within 2 weeks of contract start, completing full discovery and assessment within 25 days (ahead of 30-day requirement). Assessment covers compute, storage, network, and application dependencies.
+
+**Migration Strategy**: Each workload categorized using the 6 Rs framework (Rehost, Replatform, Refactor, Repurchase, Retire, Retain). Recommendation based on TCO analysis, risk assessment, and Borough priorities.
+
+**Zero-Downtime**: For critical applications, we employ blue-green deployment patterns with Azure Traffic Manager for seamless cutover. Database migrations use online migration tools (DMS) for continuous sync.
+
+**Rollback**: Every migration wave includes documented rollback procedures tested in DR environment before production execution. Recovery validated within 2 hours.
+
+**Parallel Run**: Minimum 30-day parallel run for all Tier 1 and Tier 2 applications. Extended to 60 days if requested by Borough application owners.
+
+### 7.2 Data Migration
+
+**Secure Transfer**: AzCopy with AES-256 encryption in transit and at rest. SHA-256 checksums validated pre and post transfer. Transfer logs retained for audit.
+
+**Database Migration**: Azure Database Migration Service with schema conversion for incompatible sources. Pre-migration compatibility assessment and remediation guidance.
+
+**Data Validation**: Automated validation framework comparing source and destination row counts, checksums, and sample data verification. 100% integrity certification signed off by Borough data owners.
+
+**Progress Tracking**: Daily migration status reports via email and dashboard. Real-time progress tracking in Azure Migrate portal accessible to Borough team.
+
+**Offline Transfer**: Azure Data Box (100 TB) and Data Box Heavy (1 PB) available for large datasets. NIST-compliant encryption with tamper-evident shipping. Chain of custody documentation provided.
+
+## Section 8: Financial Response
+
+### 8.1 Pricing
+
+**Transparency**: All pricing detailed in Appendix C with no hidden fees. Egress costs, support fees, and professional services rates clearly itemized.
+
+**Committed Use**: 1-year commitment: 20% discount. 3-year commitment: 35% discount. Discounts applied to all Azure consumption and managed services fees.
+
+**Cost Model**: Detailed cost model for Borough projected workload (Appendix B) included in Appendix C. Monthly estimated cost: $47,500 (1-year term) or $39,200 (3-year term).
+
+**Price Cap**: Annual increases capped at 8% for the duration of the contract.
+
+**Pilot Period**: 45-day trial with up to $15,000 in credits. Contract commitment required after trial.

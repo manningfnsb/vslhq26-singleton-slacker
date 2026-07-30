@@ -1,0 +1,86 @@
+# Municipal Data Center Security & Operations Requirements
+# Issued by: Borough of Fairbanks IT Division
+# 65 Requirements
+
+## Section 1: Physical Security (REQ-001 to REQ-010)
+
+REQ-001: The facility must have 24/7 on-site security personnel with documented patrol schedules.
+REQ-002: All entry points must use multi-factor access control (badge + biometric).
+REQ-003: CCTV coverage must include all server rooms, hallways, and loading docks with 90-day retention.
+REQ-004: Visitor access must require pre-approval and escort at all times in secure areas.
+REQ-005: The facility must have a mantrap entry system for the primary data center floor.
+REQ-006: Environmental monitoring must include temperature, humidity, and water leak detection with automated alerts.
+REQ-007: Fire suppression must use clean agent (FM-200 or Novec 1230) in all server rooms.
+REQ-008: Emergency power must sustain full operations for minimum 72 hours via generator with automatic transfer.
+REQ-009: Physical access logs must be retained for minimum 2 years and available for audit within 24 hours.
+REQ-010: All hardware disposal must follow NIST SP 800-88 Rev. 1 with certificates of destruction.
+
+## Section 2: Network Security (REQ-011 to REQ-020)
+
+REQ-011: Network segmentation must isolate production, development, and management traffic on separate VLANs.
+REQ-012: All external-facing services must be protected by a next-generation firewall with application-layer inspection.
+REQ-013: Intrusion detection and prevention systems must monitor all ingress and egress traffic.
+REQ-014: DNS filtering must block known malicious domains with real-time threat intelligence updates.
+REQ-015: Wireless networks must use WPA3-Enterprise with certificate-based authentication.
+REQ-016: Network access control must verify device compliance before granting access to any VLAN.
+REQ-017: All management interfaces must be accessible only via out-of-band management network.
+REQ-018: DDoS mitigation must be in place for all public-facing IP addresses with automatic activation.
+REQ-019: Network flow data must be collected and retained for minimum 1 year for forensic analysis.
+REQ-020: Quarterly external penetration testing must be performed by a CREST-certified provider.
+
+## Section 3: Server & Endpoint Security (REQ-021 to REQ-035)
+
+REQ-021: All servers must run a hardened OS configuration based on CIS Level 2 benchmarks.
+REQ-022: Endpoint detection and response software must be deployed on all servers and workstations.
+REQ-023: Patch management must ensure critical vulnerabilities are remediated within 14 days of release.
+REQ-024: All servers must use full-disk encryption with keys escrowed in a FIPS 140-2 Level 2 HSM.
+REQ-025: Host-based firewalls must be enabled on all systems with deny-by-default rules.
+REQ-026: Administrative access to servers must use a privileged access workstation (PAW).
+REQ-027: All server builds must be created from approved golden images updated monthly.
+REQ-028: File integrity monitoring must be active on all critical system files and configurations.
+REQ-029: Application whitelisting must be enforced on all production servers.
+REQ-030: USB and removable media must be disabled on all servers via group policy.
+REQ-031: Server certificates must use minimum 2048-bit RSA or 256-bit ECC keys.
+REQ-032: Automated vulnerability scanning must run weekly against all internal systems.
+REQ-033: Anti-malware signatures must update at least every 4 hours across all endpoints.
+REQ-034: System logs must forward to the SIEM in real-time with no local-only logging for production.
+REQ-035: Container workloads must scan for vulnerabilities at build time and runtime.
+
+## Section 4: Identity & Access Management (REQ-036 to REQ-050)
+
+REQ-036: All user accounts must use unique identifiers with no shared or generic accounts.
+REQ-037: Multi-factor authentication must be required for all remote access and privileged operations.
+REQ-038: Password policy must enforce minimum 16 characters with complexity requirements.
+REQ-039: Privileged accounts must use just-in-time access with maximum 8-hour session duration.
+REQ-040: Service accounts must use managed identities or certificates with no static passwords.
+REQ-041: Access reviews must be conducted quarterly for all systems with privileged access.
+REQ-042: Role-based access control must be implemented following principle of least privilege.
+REQ-043: Account provisioning and deprovisioning must complete within 4 hours of HR trigger.
+REQ-044: Failed login attempts must lock accounts after 5 tries with 30-minute automatic unlock.
+REQ-045: All authentication events must be logged and correlated in the SIEM.
+REQ-046: Conditional access policies must restrict login by location, device health, and risk score.
+REQ-047: Break-glass emergency accounts must exist with usage alerting and quarterly testing.
+REQ-048: Third-party access must use time-limited credentials with enhanced monitoring.
+REQ-049: API authentication must use OAuth 2.0 with short-lived tokens (maximum 1 hour).
+REQ-050: Directory synchronization must occur within 5 minutes to propagate access changes.
+
+## Section 5: Data Protection (REQ-051 to REQ-060)
+
+REQ-051: All data must be classified using a 4-tier scheme (Public, Internal, Confidential, Restricted).
+REQ-052: Encryption at rest must use AES-256 for all data classified Confidential or above.
+REQ-053: Encryption in transit must use TLS 1.3 for all internal and external communications.
+REQ-054: Database activity monitoring must alert on bulk data access or unusual query patterns.
+REQ-055: Data loss prevention must cover email, web upload, USB, and cloud storage channels.
+REQ-056: Backup data must be encrypted and stored in a geographically separate location.
+REQ-057: Data retention and disposal must follow the Borough records schedule with automated enforcement.
+REQ-058: PII must be tokenized or masked in all non-production environments.
+REQ-059: Cross-border data transfers must be prohibited without explicit legal counsel approval.
+REQ-060: Key management must include automated rotation every 90 days with revocation capability.
+
+## Section 6: Incident Response & Continuity (REQ-061 to REQ-065)
+
+REQ-061: An incident response plan must be maintained, reviewed semi-annually, and tested via tabletop exercise.
+REQ-062: Critical security incidents must be reported to Borough leadership within 2 hours of detection.
+REQ-063: Forensic evidence preservation procedures must be documented and staff trained annually.
+REQ-064: Recovery time objective for Tier 1 systems must not exceed 4 hours.
+REQ-065: Disaster recovery failover must be tested quarterly with documented results and remediation tracking.

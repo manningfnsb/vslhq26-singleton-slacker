@@ -18,6 +18,7 @@
 .btn-analyze:hover { background: #bfdbfe; color: #1e3a5f; transform: translateY(-1px); }
 .btn-analyze:active { transform: translateY(0); }
 .supported-formats { font-size: 0.8rem; letter-spacing: 0.3px; }
+.pulse-highlight { box-shadow: 0 0 0 6px rgba(96,165,250,0.4); background: #bfdbfe !important; transition: box-shadow 0.3s, background 0.3s; }
 </style>
 
 <div class="container mt-4">
@@ -59,6 +60,12 @@
             <div class="text-center mt-3 supported-formats text-muted">
                 Supported formats: .txt, .docx, .pdf &middot; PII is masked before analysis
             </div>
+            <div class="text-center mt-4 p-3" style="background: #f0f9ff; border: 1px dashed #93c5fd; border-radius: 10px;">
+                <small class="d-block text-muted mb-2">No documents handy? See it in action first.</small>
+                <button type="button" class="btn btn-analyze" id="sampleBtn" style="padding: 0.5rem 1.5rem;">
+                    <i class="bi bi-play-circle me-1"></i>Try with sample documents
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -99,20 +106,103 @@ document.getElementById('uploadForm').addEventListener('submit', function() {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span><span id="tipText">Analyzing\u2026</span>';
 
-    var tips = [
-        "Extracting text from your documents\u2026",
-        "Masking PII before sending to the model\u2026",
-        "Identifying individual requirements\u2026",
-        "Evaluating compliance for each requirement\u2026",
-        "Scoring confidence levels\u2026",
-        "Generating suggested fixes for gaps\u2026",
-        "Building your compliance matrix\u2026",
-        "Almost there \u2014 finalizing results\u2026"
+    // Show progress indicator
+    var progressHtml = '<div id="analysisProgress" class="mt-4">' +
+        '<div class="progress mb-2" style="height:6px; border-radius:4px;">' +
+        '<div class="progress-bar" id="progressBar" style="width:0%; background:#60a5fa; transition: width 0.8s ease;"></div></div>' +
+        '<div class="d-flex justify-content-between" style="font-size:0.75rem; color:#6c757d;">' +
+        '<span id="stepLabel">Starting\u2026</span><span id="stepPct">0%</span></div></div>';
+    btn.insertAdjacentHTML('afterend', progressHtml);
+
+    var steps = [
+        { label: "Extracting text from documents\u2026", pct: 15 },
+        { label: "Masking PII before sending to AI\u2026", pct: 25 },
+        { label: "Identifying individual requirements\u2026", pct: 40 },
+        { label: "Evaluating compliance for each requirement\u2026", pct: 55 },
+        { label: "Scoring confidence levels\u2026", pct: 70 },
+        { label: "Generating suggested fixes for gaps\u2026", pct: 82 },
+        { label: "Building your compliance matrix\u2026", pct: 92 },
+        { label: "Almost there \u2014 finalizing results\u2026", pct: 97 }
+    ];
+    var funSayings = [
+        "Good things come to those who wait\u2026 and upload large PDFs.",
+        "Still faster than reading 135 requirements by hand \u2615",
+        "Our AI is reading the fine print so you don\u2019t have to.",
+        "Fun fact: a human would take 4+ hours to do this manually.",
+        "Larger files = more requirements = better insights. Worth it!",
+        "The AI is dotting every i and crossing every compliance t.",
+        "Brewing compliance results\u2026 almost done percolating.",
+        "Teaching the AI to read legalese was the hard part.",
+        "Your future self will thank you for waiting \u2728",
+        "Crunching through your docs like a caffeinated auditor.",
+        "Compliance never sleeps. Neither does our AI.",
+        "Big docs, big results. Hang tight!",
+        "Rome wasn\u2019t audited in a day\u2026 but we\u2019re close."
     ];
     var i = 0;
-    setInterval(function() {
-        i = (i + 1) % tips.length;
-        document.getElementById('tipText').textContent = tips[i];
-    }, 4000);
+    var funIdx = 0;
+    function advance() {
+        if (i < steps.length) {
+            var s = steps[i];
+            document.getElementById('progressBar').style.width = s.pct + '%';
+            document.getElementById('stepLabel').textContent = s.label;
+            document.getElementById('stepPct').textContent = s.pct + '%';
+            document.getElementById('tipText').textContent = s.label;
+            i++;
+        } else {
+            document.getElementById('tipText').textContent = funSayings[funIdx % funSayings.length];
+            document.getElementById('stepLabel').textContent = funSayings[funIdx % funSayings.length];
+            funIdx++;
+        }
+    }
+    advance();
+    setInterval(advance, 5000);
+});
+document.getElementById('sampleBtn').addEventListener('click', function() {
+    var btn = this;
+    btn.disabled = true;
+
+    // Animate drop zone 1
+    var zone1 = document.getElementById('dropZone1');
+    var text1 = zone1.querySelector('.drop-text');
+    var name1 = zone1.querySelector('.file-name');
+    zone1.classList.add('drag-over');
+    setTimeout(function() {
+        zone1.classList.remove('drag-over');
+        text1.classList.add('d-none');
+        name1.textContent = 'sample-requirements.txt';
+        name1.classList.remove('d-none');
+        zone1.querySelector('.drop-icon').innerHTML = '<i class="bi bi-file-earmark-check"></i>';
+    }, 600);
+
+    // Animate drop zone 2
+    setTimeout(function() {
+        var zone2 = document.getElementById('dropZone2');
+        var text2 = zone2.querySelector('.drop-text');
+        var name2 = zone2.querySelector('.file-name');
+        zone2.classList.add('drag-over');
+        setTimeout(function() {
+            zone2.classList.remove('drag-over');
+            text2.classList.add('d-none');
+            name2.textContent = 'sample-response.txt';
+            name2.classList.remove('d-none');
+            zone2.querySelector('.drop-icon').innerHTML = '<i class="bi bi-file-earmark-check"></i>';
+        }, 600);
+    }, 800);
+
+    // After animation, light up Analyze button then auto-submit to TrySample
+    setTimeout(function() {
+        var analyzeBtn = document.getElementById('analyzeBtn');
+        analyzeBtn.classList.add('pulse-highlight');
+        var form = document.getElementById('uploadForm');
+        // Rewire form to TrySample and remove file required attributes
+        form.action = '@Url.Action("TrySample", "Analysis")';
+        form.querySelectorAll('input[type="file"]').forEach(function(inp) { inp.removeAttribute('required'); });
+
+        // Auto-click after a brief pause so user sees the highlighted button
+        setTimeout(function() {
+            analyzeBtn.click();
+        }, 800);
+    }, 2000);
 });
 </script>

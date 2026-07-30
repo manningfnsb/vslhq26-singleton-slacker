@@ -29,7 +29,9 @@ public class ComplianceAnalyzerService : IComplianceAnalyzerService
         var endpoint = config["AzureOpenAI:Endpoint"] ?? throw new InvalidOperationException("AzureOpenAI:Endpoint not configured");
         var apiKey = config["AzureOpenAI:ApiKey"] ?? throw new InvalidOperationException("AzureOpenAI:ApiKey not configured");
         var deployment = config["AzureOpenAI:DeploymentName"] ?? "gpt-4o";
-        var client = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
+        var clientOptions = new AzureOpenAIClientOptions();
+        clientOptions.NetworkTimeout = TimeSpan.FromMinutes(5);
+        var client = new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey), clientOptions);
         _chatClient = client.GetChatClient(deployment);
     }
 

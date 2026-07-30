@@ -1,67 +1,109 @@
-# PolicyProof - AI Compliance Checker
+# PolicyProof
 
-**One-line pitch:** Upload a requirements/policy document and a draft response; produce a Red/Yellow/Green compliance matrix with missing requirements, risk flags, suggested fixes, and citations to source text.
+AI-powered compliance analysis that instantly maps your draft response against policy requirements.
+
+## Team
+
+- **Team name:** singleton-slacker
+- **Members:**
+  - Cliff Manning (@manningfnsb)
+
+## Category
+
+- **Primary:** Azure OpenAI/LLM app
+- **Secondary:** .NET business app
+
+## What it does
+
+Organizations spend hours manually cross-referencing RFP requirements against draft responses to check compliance. PolicyProof automates this by using Azure OpenAI to analyze both documents, producing a detailed compliance matrix with per-requirement status (compliant/partial/non-compliant), evidence quotes, gap descriptions, confidence scores, and suggested fixes — all in under 60 seconds.
 
 ## Architecture
 
-`
-User uploads 2 files (Requirements + Draft Response)
-  |
-  v
-TextExtractorService (.txt / .docx / .pdf)
-  |
-  v
-PiiMaskerService (SSN, email, phone, CC, API keys)
-  |
-  v
-ComplianceAnalyzerService
-  |- Single-pass (< 80K tokens): one Azure OpenAI call
-  |- Two-pass chunked (>= 80K tokens):
-  |    Pass 1: Extract requirements list
-  |    Pass 2: Sliding-window chunks with overlap
-  |    Merge: Deduplicate, keep best status per requirement
-  |
-  v
-Compliance Matrix UI (summary + filterable table)
-`
+```
+┌──────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│   Browser    │────▶│  ASP.NET Core    │────▶│  Azure OpenAI   │
+│  (Upload +   │◀────│  MVC App         │◀────│  (gpt-5-mini)   │
+│   Results)   │     │                  │     │                 │
+└──────────────┘     │  ┌────────────┐  │     └─────────────────┘
+					 │  │ Text       │  │
+					 │  │ Extractor  │  │
+					 │  ├────────────┤  │
+					 │  │ PII Masker │  │
+					 │  ├────────────┤  │
+					 │  │ Compliance │  │
+					 │  │ Analyzer   │  │
+					 │  └────────────┘  │
+					 └──────────────────┘
+```
 
-## Safety and Security
+1. User uploads a requirements document and a draft response
+2. **TextExtractorService** extracts text from .txt, .docx, or .pdf
+3. **PiiMaskerService** redacts personally identifiable information before sending to the model
+4. **ComplianceAnalyzerService** sends masked content to Azure OpenAI with structured prompts
+5. Results rendered as an interactive compliance matrix with filtering, expandable details, and CSV export
 
-- **Prompt injection defense**: System prompt explicitly instructs the model to ignore instructions embedded in uploaded documents
-- **No citation, no claim**: Every compliance status requires a direct quote from the source document
-- **PII masking**: SSNs, emails, phone numbers, credit cards, and API keys/secrets are redacted before sending to Azure OpenAI
-- **Structured output**: JSON response format enforced via API parameter
+### Safety & Security
 
-## Quick Start
+- **Prompt injection defense:** System prompt instructs the model to ignore instructions embedded in uploaded documents
+- **No citation, no claim:** Every compliance status requires a direct quote from the source document
+- **PII masking:** SSNs, emails, phone numbers, credit cards, and API keys are redacted before sending to Azure OpenAI
+- **Structured output:** JSON response format enforced via API parameter
 
-1. Configure Azure OpenAI credentials:
-`ash
+## Tech stack
+
+- **Language:** C# 14
+- **Framework:** ASP.NET Core (.NET 10)
+- **AI model:** Azure OpenAI — gpt-5-mini
+- **Hosting:** Azure App Service
+- **Libraries:** PdfPig (PDF extraction), DocumentFormat.OpenXml (DOCX), Bootstrap 5, Bootstrap Icons
+
+## Getting started
+
+### Prerequisites
+
+- .NET 10 SDK
+- Azure OpenAI resource with a gpt-5-mini deployment
+
+### Setup
+
+```sh
+# Clone the repo
+git clone https://github.com/manningfnsb/vslhq26-singleton-slacker.git
+cd vslhq26-singleton-slacker
+
+# Configure secrets
 cd PolicyProof
-dotnet user-secrets set AzureOpenAI:Endpoint https://YOUR-RESOURCE.openai.azure.com/
-dotnet user-secrets set AzureOpenAI:ApiKey YOUR-KEY
-dotnet user-secrets set AzureOpenAI:DeploymentName gpt-4o
-`
+dotnet user-secrets set AzureOpenAI:Endpoint "https://YOUR-RESOURCE.openai.azure.com/"
+dotnet user-secrets set AzureOpenAI:ApiKey "YOUR-KEY"
+dotnet user-secrets set AzureOpenAI:DeploymentName "gpt-5-mini"
 
-2. Run: dotnet run
+# Run
+dotnet run
+```
 
-3. Navigate to https://localhost:5001 and upload your documents.
+### Configuration
 
-## Tech Stack
+| Variable | Description |
+|----------|-------------|
+| `AzureOpenAI:Endpoint` | Your Azure OpenAI resource endpoint URL |
+| `AzureOpenAI:ApiKey` | API key for the resource |
+| `AzureOpenAI:DeploymentName` | Model deployment name (e.g., `gpt-5-mini`) |
+| `AzureOpenAI:ApiVersion` | API version (default: `2024-12-01-preview`) |
 
-- .NET 10 / ASP.NET Core MVC
-- Azure OpenAI (GPT-4o)
-- PdfPig (Apache 2.0) for PDF extraction
-- DocumentFormat.OpenXml for DOCX extraction
-- Bootstrap 5 + Bootstrap Icons
+> ⚠️ Do NOT commit secrets. Use App Service configuration or `dotnet user-secrets` locally.
 
-## Demo Script (60-90 seconds)
+## Demo (required)
 
-2. **Upload** (10s): Upload a sample RFP and proposal response.
-4. **Results** (20s): Show the compliance matrix. Point out the overall score, Red items with suggested fixes, and evidence citations.
+- Video file in this repo: `./demo/demo.mp4`
+- Deployed URL: _(will be added after Azure deployment)_
 
-1. **The Problem** (10s): Compliance teams manually check proposals against RFP requirements. Hours of work, things get missed.
-2. **Upload** (10s): Upload a sample RFP and proposal response.
-3. **Processing** (20-30s): PolicyProof extracts text, masks PII, and sends both documents to Azure OpenAI with a strict compliance auditor prompt.
-4. **Results** (20s): Show the compliance matrix with overall score, Red items with suggested fixes, and evidence citations.
-5. **Filtering** (10s): Filter to show only Red/Yellow items - these are your action items.
-6. **Safety** (10s): We defend against prompt injection, require citations for every claim, and mask PII before it reaches the model.
+## Known limitations
+
+- No authentication or multi-user support — single-user sessions only
+- Very large documents may approach Azure OpenAI token limits
+- Analysis takes 30–60 seconds depending on document size
+- PII masking uses pattern-based detection (not ML) — edge cases may slip through
+
+## License
+
+Apache-2.0

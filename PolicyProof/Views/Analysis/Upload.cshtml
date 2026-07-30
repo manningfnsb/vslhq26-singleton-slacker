@@ -21,6 +21,11 @@
 .btn-analyze:disabled .spinner-border { color: #1e3a5f; }
 .supported-formats { font-size: 0.8rem; letter-spacing: 0.3px; }
 .pulse-highlight { box-shadow: 0 0 0 6px rgba(96,165,250,0.4); background: #bfdbfe !important; transition: box-shadow 0.3s, background 0.3s; }
+.progress-pulse { width: 10px; height: 10px; border-radius: 50%; background: #60a5fa; display: inline-block; }
+</style>
+<style>
+@@keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+.progress-pulse { animation: pulse-dot 1.2s ease-in-out infinite; }
 </style>
 
 <div class="container mt-4">
@@ -53,7 +58,7 @@
                             </div>
                             <div class="form-text">Your draft that will be checked against requirements.</div>
                         </div>
-                        <button type="submit" class="btn btn-primary btn-lg w-100 btn-analyze" id="analyzeBtn">
+                        <button type="submit" class="btn btn-lg w-100 btn-analyze" id="analyzeBtn">
                             <i class="bi bi-lightning-charge me-1"></i>Analyze Compliance
                         </button>
                     </form>
@@ -113,8 +118,19 @@ document.getElementById('uploadForm').addEventListener('submit', function() {
         '<div class="progress mb-2" style="height:6px; border-radius:4px;">' +
         '<div class="progress-bar" id="progressBar" style="width:0%; background:#60a5fa; transition: width 0.8s ease;"></div></div>' +
         '<div class="d-flex justify-content-between" style="font-size:0.75rem; color:#6c757d;">' +
-        '<span id="stepLabel">Starting\u2026</span><span id="stepPct">0%</span></div></div>';
+        '<span><span class="progress-pulse me-1"></span><span id="stepLabel">Starting\u2026</span></span>' +
+        '<span><span id="elapsed">0s</span> \u00b7 <span id="stepPct">0%</span></span></div></div>';
     btn.insertAdjacentHTML('afterend', progressHtml);
+
+    var startTime = Date.now();
+    var elapsedEl;
+    var elapsedTimer = setInterval(function() {
+        elapsedEl = document.getElementById('elapsed');
+        if (elapsedEl) {
+            var secs = Math.floor((Date.now() - startTime) / 1000);
+            elapsedEl.textContent = secs < 60 ? secs + 's' : Math.floor(secs/60) + 'm ' + (secs%60) + 's';
+        }
+    }, 1000);
 
     var steps = [
         { label: "Extracting text from documents\u2026", pct: 15 },
@@ -158,7 +174,13 @@ document.getElementById('uploadForm').addEventListener('submit', function() {
         }
     }
     advance();
-    setInterval(advance, 5000);
+    var stepTimer = setInterval(function() {
+        advance();
+        if (i >= steps.length) {
+            clearInterval(stepTimer);
+            setInterval(advance, 6000);
+        }
+    }, 2500);
 });
 document.getElementById('sampleBtn').addEventListener('click', function() {
     var btn = this;

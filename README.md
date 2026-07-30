@@ -10,12 +10,14 @@ AI-powered compliance analysis that instantly maps your draft response against p
 
 ## Category
 
-- **Primary:** Azure OpenAI/LLM app
-- **Secondary:** .NET business app
+- **Primary:** .NET business app
+- **Secondary:** Azure OpenAI/LLM app
 
 ## What it does
 
-Organizations spend hours manually cross-referencing RFP requirements against draft responses to check compliance. PolicyProof automates this by using Azure OpenAI to analyze both documents, producing a detailed compliance matrix with per-requirement status (compliant/partial/non-compliant), evidence quotes, gap descriptions, confidence scores, and suggested fixes — all in under 60 seconds.
+PolicyProof is an enterprise compliance workflow application for procurement and proposal teams. Organizations spend hours manually cross-referencing RFP requirements against draft responses to check compliance. PolicyProof automates this workflow using Azure OpenAI to analyze both documents, producing a decision-ready compliance matrix with per-requirement status (compliant/partial/non-compliant), evidence quotes, gap descriptions, confidence scores, and suggested fixes — typically in 30–60 seconds.
+
+In short: this is a **business app first**, with LLM capabilities embedded to deliver the business outcome faster and more consistently.
 
 ## Architecture
 

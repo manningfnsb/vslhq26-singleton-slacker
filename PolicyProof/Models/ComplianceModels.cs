@@ -63,6 +63,9 @@ public class ComplianceItem
 
     [JsonPropertyName("confidence")]
     public string Confidence { get; set; } = string.Empty;
+
+    [JsonPropertyName("category")]
+    public string Category { get; set; } = string.Empty;
 }
 
 public class AnalysisViewModel

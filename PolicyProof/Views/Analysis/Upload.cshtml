@@ -168,9 +168,9 @@ document.getElementById('uploadForm').addEventListener('submit', function() {
             document.getElementById('tipText').textContent = s.label;
             i++;
         } else {
-            document.getElementById('tipText').textContent = funSayings[funIdx % funSayings.length];
-            document.getElementById('stepLabel').textContent = funSayings[funIdx % funSayings.length];
-            funIdx++;
+            var pick = funSayings[Math.floor(Math.random() * funSayings.length)];
+            document.getElementById('tipText').textContent = pick;
+            document.getElementById('stepLabel').textContent = pick;
         }
     }
     advance();

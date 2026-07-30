@@ -5,8 +5,7 @@ AI-powered compliance analysis that instantly maps your draft response against p
 ## Team
 
 - **Team name:** singleton-slacker
-- **Members:**
-  - Cliff Manning (@manningfnsb)
+- **Members:** Cliff Manning (@manningfnsb)
 
 ## Category
 
@@ -90,14 +89,13 @@ dotnet run
 | `AzureOpenAI:Endpoint` | Your Azure OpenAI resource endpoint URL |
 | `AzureOpenAI:ApiKey` | API key for the resource |
 | `AzureOpenAI:DeploymentName` | Model deployment name (e.g., `gpt-5-mini`) |
-| `AzureOpenAI:ApiVersion` | API version (default: `2024-12-01-preview`) |
 
 > ⚠️ Do NOT commit secrets. Use App Service configuration or `dotnet user-secrets` locally.
 
 ## Demo
 
 - Video file in this repo: `./demo/demo.mp4`
-- Deployed URL: _(will be added after Azure deployment)_
+- Azure Deployment: https://app-i2-policyproof-dna9e8gta2axeydt.canadacentral-01.azurewebsites.net/
 
 ## Known limitations
 
